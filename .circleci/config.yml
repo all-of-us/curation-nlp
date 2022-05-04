@@ -2,6 +2,16 @@
 version: 2.1
 
 jobs:
+  build-artifacts:
+    working_directory: /tmp
+    steps:
+      - run:
+          name: Creating Artifacts
+          command: |
+            mkdir /tmp/artifacts
+      - store_artifacts:
+          path: /tmp/artifacts
+          destination: artifact-file
   build-and-test:
     docker:
       - image: cimg/openjdk:8.0
@@ -18,4 +28,5 @@ jobs:
 workflows:
   sample:
     jobs:
+      - build-artifacts
       - build-and-test
