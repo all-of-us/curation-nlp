@@ -3,7 +3,6 @@ version: 2.1
 
 commands:
   build-artifacts:
-    working_directory: /tmp
     steps:
       - run:
           name: Creating Artifacts
