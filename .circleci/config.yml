@@ -1,22 +1,24 @@
 # Use the latest 2.1 version of CircleCI pipeline process engine.
 version: 2.1
 
+build-artifacts:
+  working_directory: /tmp
+  steps:
+    - run:
+        name: Creating Artifacts
+        command: |
+          mkdir /tmp/artifacts
+    - store_artifacts:
+        path: /tmp/artifacts
+        destination: artifact-file
+
 jobs:
-  build-artifacts:
-    working_directory: /tmp
-    steps:
-      - run:
-          name: Creating Artifacts
-          command: |
-            mkdir /tmp/artifacts
-      - store_artifacts:
-          path: /tmp/artifacts
-          destination: artifact-file
   build-and-test:
     docker:
       - image: cimg/openjdk:8.0
     resource_class: medium
     steps:
+      - build-artifacts
       - checkout
       - run:
           name: Build
@@ -26,7 +28,6 @@ jobs:
           command: mvn test
 
 workflows:
-  sample:
+  test:
     jobs:
-      - build-artifacts
       - build-and-test
