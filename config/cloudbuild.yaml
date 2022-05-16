@@ -15,7 +15,7 @@ steps:
             --input=$${LOCATION}/input/*
             --output=$${LOCATION}/output
             --subnetwork=$${SUBNET}
-            --maxNumWorkers=10 \
+            --maxNumWorkers=5 \
             --buildId=${BUILD_ID}_${SHORT_SHA} \
             --region=us-central1"
         -Pdataflow-runner
