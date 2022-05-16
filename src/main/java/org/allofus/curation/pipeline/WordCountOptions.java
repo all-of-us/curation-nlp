@@ -20,4 +20,8 @@ public interface WordCountOptions extends PipelineOptions {
     @Validation.Required
     String getOutput();
     void setOutput(String value);
+
+    @Description("Build Identifier")
+    String getBuildId();
+    void setBuildId(String BuildId);
 }
