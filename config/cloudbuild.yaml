@@ -1,6 +1,6 @@
 steps:
   - id: "build and deploy to dataflow"
-    name: maven:3.8.1-jdk-8
+    name: 'maven:3.8.1-jdk-8'
     entrypoint: 'bash'
     args:
       - '-c'
