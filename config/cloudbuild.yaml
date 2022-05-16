@@ -1,0 +1,28 @@
+steps:
+  - id: "build and deploy to dataflow"
+    name: maven:3.8.1-jdk-8
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Build identifier = ${BUILD_ID}_${SHORT_SHA}"
+        mvn compile exec:java \
+          -Dexec.mainClass="org.allofus.curation.pipeline.ExampleWordCount" \
+          -Dexec.args="
+            --project=${PROJECT_ID} \
+            --stagingLocation=$${LOCATION}/staging \
+            --gcpTempLocation=$${LOCATION}/tmp \
+            --runner=DataflowRunner \
+            --input=$${LOCATION}/input/*
+            --output=$${LOCATION}/output
+            --subnetwork=$${SUBNET}
+            --maxNumWorkers=10 \
+            --buildId=${BUILD_ID}_${SHORT_SHA} \
+            --region=us-central1"
+        -Pdataflow-runner
+    secretEnv: ['LOCATION', 'SUBNET']
+availableSecrets:
+  - versionName: projects/${PROJECT_ID}/secrets/dataflow-location/versions/latest
+    env: 'LOCATION'
+  - versionName: projects/${PROJECT_ID}/secrets/dataflow-subnet/versions/latest
+    env: 'SUBNET'
