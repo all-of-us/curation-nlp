@@ -1,6 +1,6 @@
 steps:
   - id: "build and deploy to dataflow"
-    name: 'maven:3.8.1-jdk-8'
+    name: 'gcr.io/cloud-builders/mvn/3.5.0-jdk-8'
     entrypoint: 'bash'
     args:
       - '-c'
@@ -8,8 +8,7 @@ steps:
         echo "Build identifier = ${BUILD_ID}_${SHORT_SHA}"
         mvn compile exec:java \
           -Dexec.mainClass="org.allofus.curation.pipeline.ExampleWordCount" \
-          -Dexec.args="
-            --project=${PROJECT_ID} \
+          -Dexec.args="--project=${PROJECT_ID} \
             --stagingLocation=$${LOCATION}/staging \
             --gcpTempLocation=$${LOCATION}/tmp \
             --runner=DataflowRunner \
