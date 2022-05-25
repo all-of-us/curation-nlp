@@ -8,7 +8,7 @@ steps:
       echo "Build identifier = ${BUILD_ID}_${SHORT_SHA}"
       mvn compile exec:java \
         -Dexec.mainClass="org.allofus.curation.pipeline.ExampleWordCount" \
-        -Dexec.args="--project=${PROJECT_ID} \
+        -Dexec.args="--project=${PROJECT_NUMBER} \
           --stagingLocation=$${LOCATION}/staging \
           --gcpTempLocation=$${LOCATION}/tmp \
           --runner=DataflowRunner \
