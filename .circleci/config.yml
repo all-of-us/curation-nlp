@@ -11,12 +11,14 @@ jobs:
       - checkout
       - attach_workspace:
           at: ./target
-      - run: |
-          mvn -Dtest=$(for file in $(circleci tests glob "src/test/**/**.java" |
-          circleci tests split --split-by=timings); \
-          do basename $file | sed -e "s/.java/,/"; done |
-          tr -d '\r\n') \
-          -e test verify
+      - run:
+          name: Running tests
+          command: |
+            mvn -Dtest=$(for file in $(circleci tests glob "src/test/**/**.java" |
+            circleci tests split --split-by=timings); \
+            do basename $file | sed -e "s/.java/,/"; done |
+            tr -d '\r\n') \
+            -e test verify
       - store_test_results:
           path: target/surefire-reports
       - store_artifacts:
@@ -28,7 +30,9 @@ jobs:
     resource_class: medium
     steps:
       - checkout
-      - run: mvn -Dmaven.test.skip=true package
+      - run:
+          name: Build
+          command: mvn -Dmaven.test.skip=true package
       - persist_to_workspace:
           root: ./
           paths:
