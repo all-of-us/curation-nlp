@@ -8,7 +8,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
         <slf4j.version>1.7.5</slf4j.version>
-        <beamsdk.version>2.37.0</beamsdk.version>
+        <beamsdk.version>2.38.0</beamsdk.version>
         <maven.version>3.8.1</maven.version>
         <mavenshader.version>3.2.4</mavenshader.version>
     </properties>
