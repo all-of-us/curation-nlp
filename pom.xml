@@ -4,6 +4,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>groupId</groupId>
+    <artifactId>curation-nlp</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
@@ -11,11 +15,10 @@
         <beamsdk.version>2.38.0</beamsdk.version>
         <maven.version>3.8.1</maven.version>
         <mavenshader.version>3.2.4</mavenshader.version>
+        <junit.version>5.8.1</junit.version>
+        <hamcrest.version>1.3</hamcrest.version>
     </properties>
 
-    <groupId>groupId</groupId>
-    <artifactId>curation-nlp</artifactId>
-    <version>1.0-SNAPSHOT</version>
     <build>
         <plugins>
             <plugin>
@@ -88,13 +91,13 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>RELEASE</version>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-all</artifactId>
-            <version>1.3</version>
+            <version>${hamcrest.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

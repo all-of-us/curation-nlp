@@ -3,36 +3,41 @@
 */
 package org.allofus.curation.pipeline;
 
-import org.apache.beam.sdk.Pipeline;
+import junit.framework.TestCase;
 import org.apache.beam.sdk.testing.PAssert;
 import org.apache.beam.sdk.testing.TestPipeline;
 import org.apache.beam.sdk.transforms.Count;
 import org.apache.beam.sdk.transforms.Create;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
+import org.junit.Rule;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class CountWordsTest {
+public class CountWordsTest extends TestCase {
 
     // Our static input data, which will make up the initial PCollection.
+    @Rule
     static final String[] WORDS_ARRAY = new String[] {
             "hi", "there", "hi", "hi", "sue", "bob",
             "hi", "sue", "", "", "ZOW", "bob", ""};
 
+    @Rule
     static final List<String> WORDS = Arrays.asList(WORDS_ARRAY);
 
+    @Test
     public void testCount() {
         // Create a test pipeline.
-        Pipeline p = TestPipeline.create();
+        TestPipeline p = TestPipeline.create().enableAbandonedNodeEnforcement(false);
 
         // Create an input PCollection.
         PCollection<String> input = p.apply(Create.of(WORDS));
 
         // Apply the Count transform under test.
         PCollection<KV<String, Long>> output =
-                input.apply(Count.<String>perElement());
+                input.apply(Count.perElement());
 
         // Assert on the results.
         PAssert.that(output)
