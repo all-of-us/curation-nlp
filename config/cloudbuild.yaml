@@ -6,6 +6,7 @@ steps:
     - '-c'
     - |
       echo "Build identifier = ${BUILD_ID}_${SHORT_SHA}"
+      gcloud auth login
       mvn compile exec:java \
         -Dexec.mainClass="org.allofus.curation.pipeline.ExampleWordCount" \
         -Dexec.args="--project=${PROJECT_ID} \
