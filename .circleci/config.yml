@@ -22,7 +22,7 @@ jobs:
       - store_test_results:
           path: target/surefire-reports
       - store_artifacts:
-          path: target/site/jacoco/index.html
+          path: target/coverage-reports/jacoco/index.html
 
   build:
     docker:

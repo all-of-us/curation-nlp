@@ -52,6 +52,7 @@
                                 </filter>
                             </filters>
                             <shadedArtifactAttached>true</shadedArtifactAttached>
+                            <shadedClassifierName>jar-with-dependencies</shadedClassifierName>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>org.allofus.curation.pipeline.ExampleWordCount</mainClass>
@@ -67,7 +68,7 @@
                 <version>${jacoco.version}</version>
                 <executions>
                     <execution>
-                        <id>pre-unit-test</id>
+                        <id>prepare-agent</id>
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
