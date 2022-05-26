@@ -27,6 +27,15 @@ public class CountWordsTest extends TestCase {
     @Rule
     static final List<String> WORDS = Arrays.asList(WORDS_ARRAY);
 
+    @Rule
+    static final List<KV<String, Long>> COUNTS = Arrays.asList(
+            KV.of("hi", 4L),
+            KV.of("there", 1L),
+            KV.of("sue", 2L),
+            KV.of("bob", 2L),
+            KV.of("", 3L),
+            KV.of("ZOW", 1L));
+
     @Test
     public void testCount() {
         // Create a test pipeline.
@@ -42,12 +51,7 @@ public class CountWordsTest extends TestCase {
         // Assert on the results.
         PAssert.that(output)
                 .containsInAnyOrder(
-                        KV.of("hi", 4L),
-                        KV.of("there", 1L),
-                        KV.of("sue", 2L),
-                        KV.of("bob", 2L),
-                        KV.of("", 3L),
-                        KV.of("ZOW", 1L));
+                        COUNTS);
 
         // Run the pipeline.
         p.run();
