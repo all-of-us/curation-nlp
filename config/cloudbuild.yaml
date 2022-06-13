@@ -9,7 +9,6 @@ steps:
       mvn compile exec:java \
         -Dexec.mainClass="org.allofus.curation.pipeline.ExampleWordCount" \
         -Dexec.args="--project=${PROJECT_ID} \
-          --stagingLocation=$${LOCATION}/staging \
           --gcpTempLocation=$${LOCATION}/tmp \
           --runner=DataflowRunner \
           --input=$${LOCATION}/input/* \
