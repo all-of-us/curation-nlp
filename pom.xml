@@ -20,6 +20,7 @@
         <beam.version>2.38.0</beam.version>
         <maven.version>3.8.1</maven.version>
         <maven-jar-plugin.version>3.2.1</maven-jar-plugin.version>
+        <maven-exec-plugin>3.0.0</maven-exec-plugin>
         <maven-shade-plugin.version>3.2.4</maven-shade-plugin.version>
         <jupiter.version>5.8.1</jupiter.version>
         <junit.version>4.12</junit.version>
