@@ -17,7 +17,7 @@ steps:
           --maxNumWorkers=5 \
           --buildId=${BUILD_ID}_${SHORT_SHA} \
           --region=us-central1" \
-        -Pdataflow-runner
+        -Pdataflow-runner -P dataflow
     secretEnv: ['LOCATION', 'SUBNET']
 availableSecrets:
   secretManager:
