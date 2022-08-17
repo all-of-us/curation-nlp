@@ -3,6 +3,12 @@
  */
 package org.allofus.curation.pipeline;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.channels.Channels;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 
 import org.apache.beam.sdk.Pipeline;
@@ -12,6 +18,8 @@ import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.InvalidXMLException;
 import org.slf4j.Logger;
@@ -32,19 +40,30 @@ import java.time.Instant;
  * </pre>
  */
 public class CurationNLPMain {
-	 private static final Logger LOG = LoggerFactory.getLogger(CurationNLPMain.class);
-
+	private static final Logger LOG = LoggerFactory.getLogger(CurationNLPMain.class);
+	private enum Header {
+		id, text;
+	}
     static void runCurationNLP(CurationNLPOptions options) {
         Pipeline p = Pipeline.create(options);
         // 1. readlines from csv file
         // 2. read from multiple files in a directory
         // 3. read json
         
-        p.apply(FileIO.match().filepattern(options.getInput()+"*.txt"))
+        p.apply(FileIO.match().filepattern(options.getInput()+"*.txt")) //PCollection<Metadata>
+				.apply(FileIO.readMatches()) //PCollection<ReadableFile>
+				.apply(ParDo.of(
+						new DoFn<FileIO.ReadableFile, CSVRecord>() {
+							@ProcessElement
+							public void processElement(@Element FileIO.ReadableFile element, OutputReceiver<CSVRecord> receiver) throws IOException {
+								InputStream is = Channels.newInputStream(element.open());
+								Reader reader = new InputStreamReader(is, StandardCharsets.UTF_8);
+								Iterable<CSVRecord> records = CSVFormat.DEFAULT.withHeader(Header.class).withDelimiter(',').withFirstRecordAsHeader().parse(reader);
+								for (CSVRecord record : records) { receiver.output(record); }
+							}}
+				))
             // The withCompression method is optional. By default, the Beam SDK detects compression from
             // the filename.
-            .apply(FileIO.readMatches())
-            //.apply(TextIO.readFiles())
             .apply(ParDo.of(new RunCLAMPFileFn()));
             //.apply(new CurationNLP());
                 //ParDo.of(
