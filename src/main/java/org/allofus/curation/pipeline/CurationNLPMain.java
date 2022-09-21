@@ -20,8 +20,8 @@ import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
-import org.apache.uima.resource.ResourceInitializationException;
-import org.apache.uima.util.InvalidXMLException;
+//import org.apache.uima.resource.ResourceInitializationException;
+//import org.apache.uima.util.InvalidXMLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,13 +44,17 @@ public class CurationNLPMain {
 	private enum Header {
 		id, text;
 	}
+	
     static void runCurationNLP(CurationNLPOptions options) {
         Pipeline p = Pipeline.create(options);
-        // 1. readlines from csv file
-        // 2. read from multiple files in a directory
-        // 3. read json
-        
-        p.apply(FileIO.match().filepattern(options.getInput()+"*.txt")) //PCollection<Metadata>
+        if (options.getInputExt().equals("txt")) {
+        	// read from multiple txt files in input directory
+        	p.apply(FileIO.match().filepattern((options.getInput()+"*.txt")))
+        		.apply(FileIO.readMatches())
+        		.apply(ParDo.of(new RunCLAMPFileFn()));
+        } else if (options.getInputExt().equalsIgnoreCase("csv")) {
+        	// readlines from csv file
+            p.apply(FileIO.match().filepattern(options.getInput()+"*.csv")) //PCollection<Metadata>
 				.apply(FileIO.readMatches()) //PCollection<ReadableFile>
 				.apply(ParDo.of(
 						new DoFn<FileIO.ReadableFile, CSVRecord>() {
@@ -62,18 +66,13 @@ public class CurationNLPMain {
 								for (CSVRecord record : records) { receiver.output(record); }
 							}}
 				))
-            // The withCompression method is optional. By default, the Beam SDK detects compression from
-            // the filename.
-            .apply(ParDo.of(new RunCLAMPFileFn()));
-            //.apply(new CurationNLP());
-                //ParDo.of(
-                //    new DoFn<FileIO.ReadableFile, String>() {
-                //        @ProcessElement
-                //        public void process(@Element FileIO.ReadableFile file) {
-                //        // We can now access the file and its metadata.
-                //        LOG.info("File Metadata resourceId is {} ", file.getMetadata().resourceId());
-                //}
-                //}));        
+                // The withCompression method is optional. By default, the Beam SDK detects compression from
+                // the filename.
+                .apply(ParDo.of(new RunCLAMPStringFn()));
+        } else if (options.getInputExt().equalsIgnoreCase("json")) {
+        	// read json
+        }
+        
         p.run().waitUntilFinish();
     }
 
@@ -84,7 +83,7 @@ public class CurationNLPMain {
                 PipelineOptionsFactory.fromArgs(args).withValidation().as(CurationNLPOptions.class);
         
 		try {
-			if (RunCLAMPFileFn.init_clamp(options) < 0) {
+			if (RunCLAMPStringFn.init_clamp(options) < 0) {
 			    System.out.println("init CLAMP pipeline failed. Please check the input parameters.");
 		        //RunCLAMPPipeline.run_pipeline();
 			} else {
