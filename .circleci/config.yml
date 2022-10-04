@@ -12,6 +12,10 @@ jobs:
       - attach_workspace:
           at: ./target
       - run:
+          name: Activate gcloud creds
+          command: |
+            echo $GCLOUD_SERVICE_ACCOUNT | gcloud auth activate-service-account --key-file=-
+      - run:
           name: Running tests
           command: |
             mvn -Dtest=$(for file in $(circleci tests glob "src/test/**/**.java" |
