@@ -35,6 +35,10 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Activate gcloud creds
+          command: |
+            echo $GCLOUD_SERVICE_ACCOUNT | gcloud auth activate-service-account --key-file=-
+      - run:
           name: Build
           command: mvn -Dmaven.test.skip=true package
       - persist_to_workspace:
