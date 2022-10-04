@@ -144,7 +144,7 @@
     <repositories>
         <repository>
             <id>artifact-registry</id>
-            <url>$PRIVATE_CLAMP_REPO_URL</url>
+            <url>${env.PRIVATE_CLAMP_REPO_URL}</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
