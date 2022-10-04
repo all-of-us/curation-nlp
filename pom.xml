@@ -141,6 +141,19 @@
         </pluginManagement>
     </build>
 
+    <repositories>
+        <repository>
+            <id>artifact-registry</id>
+            <url>$PRIVATE_CLAMP_REPO_URL</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
     <profiles>
         <profile>
             <id>direct</id>
