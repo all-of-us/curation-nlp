@@ -27,6 +27,7 @@
         <hamcrest.version>1.3</hamcrest.version>
         <jacoco.version>0.8.3</jacoco.version>
         <clamp.version>1.7.1</clamp.version>
+        <artifact-registry.version>2.1.5</artifact-registry.version>
     </properties>
 
     <build>
@@ -139,6 +140,14 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+
+        <extensions>
+            <extension>
+                <groupId>com.google.cloud.artifactregistry</groupId>
+                <artifactId>artifactregistry-maven-wagon</artifactId>
+                <version>${artifact-registry.version}</version>
+            </extension>
+        </extensions>
     </build>
 
     <repositories>
