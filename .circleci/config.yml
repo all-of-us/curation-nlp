@@ -16,7 +16,7 @@ commands:
       - run:
           name: Store gcloud creds to key file
           command: |
-            openssl enc -d -aes-256-cbc -base64 -A -md md5 -k "${$GCLOUD_SERVICE_ACCOUNT}" -out ./gcloud_key.json
+            openssl enc -d -aes-256-cbc -base64 -A -md md5 -k "${GCLOUD_SERVICE_ACCOUNT}" -out ./gcloud_key.json
       - run:
           name: Activate gcloud creds
           command: |
