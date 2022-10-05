@@ -2,26 +2,28 @@ steps:
   - id: "build and deploy to dataflow"
     name: "gcr.io/cloud-builders/mvn:3.5.0-jdk-8"
     entrypoint: 'bash'
+    env:
+      - 'PRIVATE_CLAMP_REPO_URL=${_PRIVATE_CLAMP_REPO_URL}'
     args:
-    - '-c'
-    - |
-      echo "Build identifier = ${BUILD_ID}_${SHORT_SHA}"
-      mvn compile exec:java \
-        -Dexec.mainClass="org.allofus.curation.pipeline.ExampleWordCount" \
-        -Dexec.args="--project=${PROJECT_ID} \
-          --gcpTempLocation=$${LOCATION}/tmp \
-          --runner=DataflowRunner \
-          --input=$${LOCATION}/input/* \
-          --output=$${LOCATION}/output \
-          --subnetwork=$${SUBNET} \
-          --maxNumWorkers=5 \
-          --buildId=${BUILD_ID}_${SHORT_SHA} \
-          --region=us-central1" \
-        -Pdataflow-runner -P dataflow
+      - '-c'
+      - |
+        echo "Build identifier = ${BUILD_ID}_${SHORT_SHA}"
+        mvn compile exec:java \
+          -Dexec.mainClass="org.allofus.curation.pipeline.ExampleWordCount" \
+          -Dexec.args="--project=${PROJECT_ID} \
+            --gcpTempLocation=$${LOCATION}/tmp \
+            --runner=DataflowRunner \
+            --input=$${LOCATION}/input/* \
+            --output=$${LOCATION}/output \
+            --subnetwork=$${SUBNET} \
+            --maxNumWorkers=5 \
+            --buildId=${BUILD_ID}_${SHORT_SHA} \
+            --region=us-central1" \
+          -Pdataflow-runner -P dataflow
     secretEnv: ['LOCATION', 'SUBNET']
 availableSecrets:
   secretManager:
-  - versionName: projects/${PROJECT_ID}/secrets/dataflow-location/versions/latest
-    env: 'LOCATION'
-  - versionName: projects/${PROJECT_ID}/secrets/dataflow-subnet/versions/latest
-    env: 'SUBNET'
+    - versionName: projects/${PROJECT_ID}/secrets/dataflow-location/versions/latest
+      env: 'LOCATION'
+    - versionName: projects/${PROJECT_ID}/secrets/dataflow-subnet/versions/latest
+      env: 'SUBNET'
