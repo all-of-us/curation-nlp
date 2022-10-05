@@ -7,9 +7,8 @@ job_defaults: &job_defaults
     resource_class: medium
     parallelism: 1
 
-jobs:
-  test:
-    <<: *job_defaults
+commands:
+  setup:
     steps:
       - checkout
       - attach_workspace:
@@ -22,6 +21,12 @@ jobs:
           name: Activate gcloud creds
           command: |
             gcloud auth activate-service-account --key-file=./gcloud_key.json
+
+jobs:
+  test:
+    <<: *job_defaults
+    steps:
+      - setup
       - run:
           name: Running tests
           command: |
@@ -38,13 +43,9 @@ jobs:
   build:
     <<: *job_defaults
     steps:
-      - checkout
+      - setup
       - run:
-          name: Activate gcloud creds
-          command: |
-            echo $GCLOUD_SERVICE_ACCOUNT | gcloud auth activate-service-account --key-file=-
-      - run:
-          name: Build
+          name: Maven build
           command: mvn -Dmaven.test.skip=true package
       - persist_to_workspace:
           root: ./
