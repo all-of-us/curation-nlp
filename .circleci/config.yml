@@ -3,7 +3,7 @@ version: 2.1
 
 job_defaults: &job_defaults
     docker:
-      - image: gcr.io/google-appengine/openjdk:8
+      - image: google/cloud-sdk:160.0.0
     resource_class: medium
     parallelism: 1
 
