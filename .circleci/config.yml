@@ -1,12 +1,15 @@
 # Use the latest 2.1 version of CircleCI pipeline process engine.
 version: 2.1
 
+job_defaults: &job_defaults
+    docker:
+      - image: gcr.io/google-appengine/openjdk:8
+    resource_class: medium
+    parallelism: 1
+
 jobs:
   test:
-    parallelism: 1
-    docker:
-      - image: cimg/openjdk:8.0
-    resource_class: medium
+    <<: *job_defaults
     steps:
       - checkout
       - attach_workspace:
@@ -29,9 +32,7 @@ jobs:
           path: target/coverage-reports/jacoco/index.html
 
   build:
-    docker:
-      - image: cimg/openjdk:8.0
-    resource_class: medium
+    <<: *job_defaults
     steps:
       - checkout
       - run:
