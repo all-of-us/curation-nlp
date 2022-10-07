@@ -5,7 +5,7 @@ steps:
     args:
       - '-c'
       - |
-        cp gs://maven-configs/settings.xml settings.xml
+        cp gs://clamp-maven/settings.xml settings.xml
         ls .
         sed -i -e 's/CLAMP_REG_PASSWORD/$${CLAMP_REG_PASSWORD}/g' settings.xml
         cat settings.xml
