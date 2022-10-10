@@ -5,7 +5,9 @@ steps:
     args:
       - '-c'
       - |
-        'gsutil cat '"$${LOCATION}"'/settings.xml'
+        copy_cmd='gsutil cat '"$${LOCATION}"'/settings.xml'
+        echo $copy_cmd
+        $copy_cmd
         sed -i -e 's/CLAMP_REG_PASSWORD/'"$${CLAMP_REG_PASSWORD}"'/g' settings.xml
     secretEnv: ['LOCATION', 'CLAMP_REG_PASSWORD']
   - id: "build and deploy to dataflow"
