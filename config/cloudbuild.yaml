@@ -5,9 +5,9 @@ steps:
     args:
       - '-c'
       - |
-        gsutil cp gs://clamp-maven/settings.xml .
+        gsutil cp gs://$${LOCATION}/config/settings.xml .
         sed -i -e 's/CLAMP_REG_PASSWORD/'"$${CLAMP_REG_PASSWORD}"'/g' settings.xml
-    secretEnv: ['CLAMP_REG_PASSWORD']
+    secretEnv: ['LOCATION', 'CLAMP_REG_PASSWORD']
   - id: "build and deploy to dataflow"
     name: "gcr.io/cloud-builders/mvn:3.5.0-jdk-8"
     entrypoint: 'bash'
@@ -19,7 +19,7 @@ steps:
         echo "Build identifier = ${BUILD_ID}_${SHORT_SHA}"
         mvn compile exec:java \
           --settings settings.xml
-          -Dexec.mainClass="org.allofus.curation.pipeline.ExampleWordCount" \
+          -Dexec.mainClass="org.allofus.curation.pipeline.CurationNLPMain" \
           -Dexec.args="--project=${PROJECT_ID} \
             --gcpTempLocation=$${LOCATION}/tmp \
             --runner=DataflowRunner \
