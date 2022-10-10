@@ -55,8 +55,11 @@ RUN mkdir -p "${GSDK_INSTALL_PATH}" \
     && tar -xzf "${GSDK_TAR_FILE}" -C "${CURATION_HOME}" \
     && rm "${GSDK_TAR_FILE}" \
     && cd "${GSDK_INSTALL_PATH}" \
-    && ./install.sh --quiet \
-    && echo "source ${GSDK_INSTALL_PATH}/path.bash.inc" | tee --append "${CURATION_HOME}/.bashrc" "${CURATION_HOME}/.profile" \
+    && ./install.sh --quiet
+
+# Use bash and update path
+SHELL ["/bin/bash", "-c"]
+RUN echo "source ${GSDK_INSTALL_PATH}/path.bash.inc" | tee --append "${CURATION_HOME}/.bashrc" "${CURATION_HOME}/.profile" \
     && echo "source ${GSDK_INSTALL_PATH}/completion.bash.inc" | tee --append "${CURATION_HOME}/.bashrc" "${CURATION_HOME}/.profile" \
-    && cd .. \
-    && ./google-cloud-sdk/bin/gcloud components update --quiet
+    && source "${CURATION_HOME}/.bashrc" \
+    && gcloud components update
