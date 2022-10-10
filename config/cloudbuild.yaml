@@ -7,7 +7,6 @@ steps:
       - |
         gsutil cp gs://clamp-maven/settings.xml .
         sed -i -e 's/CLAMP_REG_PASSWORD/'"$${CLAMP_REG_PASSWORD}"'/g' settings.xml
-        cat settings.xml
     secretEnv: ['CLAMP_REG_PASSWORD']
   - id: "build and deploy to dataflow"
     name: "gcr.io/cloud-builders/mvn:3.5.0-jdk-8"
