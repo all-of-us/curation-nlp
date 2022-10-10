@@ -3,7 +3,10 @@ version: 2.1
 
 job_defaults: &job_defaults
     docker:
-      - image: google/cloud-sdk:160.0.0
+      - image: $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_ID/$CONTAINER_ID:1.0
+        auth:
+          username: _json_key_base64
+          password: $GCLOUD_SERVICE_ACCOUNT
     resource_class: medium
     parallelism: 1
 
