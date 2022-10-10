@@ -1,11 +1,11 @@
 steps:
-  - id: "fetch mvn settings.xml"
+  - id: "fetch mvn settings.xml and update"
     name: "gcr.io/cloud-builders/gsutil"
     entrypoint: 'bash'
     args:
       - '-c'
       - |
-        gsutil cp gs://"$${LOCATION}"/config/settings.xml .
+        gsutil cp 'gs://'"$${LOCATION}"'/config/settings.xml' .
         sed -i -e 's/CLAMP_REG_PASSWORD/'"$${CLAMP_REG_PASSWORD}"'/g' settings.xml
     secretEnv: ['LOCATION', 'CLAMP_REG_PASSWORD']
   - id: "build and deploy to dataflow"
