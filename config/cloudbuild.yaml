@@ -5,10 +5,9 @@ steps:
     args:
       - '-c'
       - |
-        gsutil ls gs://clamp-maven
         gsutil cp gs://clamp-maven/settings.xml .
-        ls .
-        sed -i -e 's/CLAMP_REG_PASSWORD/$${CLAMP_REG_PASSWORD}/g' settings.xml
+        clamp_reg_password = $${CLAMP_REG_PASSWORD}
+        sed -i -e 's/CLAMP_REG_PASSWORD/${clamp_reg_password}/g' settings.xml
         cat settings.xml
     secretEnv: ['CLAMP_REG_PASSWORD']
   - id: "build and deploy to dataflow"
