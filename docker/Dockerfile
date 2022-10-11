@@ -75,13 +75,14 @@ RUN $(echo $(cat "${MAVEN_CHECKSUM}") "${MAVEN_TAR_FILE}" | sha512sum --check --
   && gpg --verify "${MAVEN_SIGNATURE}" "${MAVEN_TAR_FILE}"
 
 # Install maven
-RUN tar -xzf "${MAVEN_TAR_FILE}" -C "${MAVEN_INSTALL_PATH}" \
+RUN tar -xzf "${MAVEN_TAR_FILE}" -C "${MAVEN_INSTALL_PATH}" --strip-components=1 \
   && rm "${MAVEN_TAR_FILE}" \
   && rm "${MAVEN_CHECKSUM}" \
-  && rm "${MAVEN_SIGNATURE}"
+  && rm "${MAVEN_SIGNATURE}" \
+  && ls "${MAVEN_INSTALL_PATH}" \
+  && ln -s "${MAVEN_INSTALL_PATH}/bin/mvn" /usr/bin/mvn
 
 ENV MAVEN_HOME "${MAVEN_INSTALL_PATH}"
-ENV PATH "${PATH}:${MAVEN_INSTALL_PATH}/bin"
 
 # Naming in-container user
 ARG CURATION_USER="curation_nlp"
