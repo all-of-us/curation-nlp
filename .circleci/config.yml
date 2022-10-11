@@ -36,11 +36,12 @@ jobs:
       - run:
           name: Running tests
           command: |
-            mvn -Dtest=$(for file in $(circleci tests glob "src/test/**/**.java" |
-            circleci tests split --split-by=timings); \
-            do basename $file | sed -e "s/.java/,/"; done |
-            tr -d '\r\n') \
-            -e test verify
+            mvn --settings settings.xml
+              -Dtest=$(for file in $(circleci tests glob "src/test/**/**.java" |
+                circleci tests split --split-by=timings); \
+                do basename $file | sed -e "s/.java/,/"; done |
+                tr -d '\r\n') \
+              -e test verify
       - store_test_results:
           path: target/surefire-reports
       - store_artifacts:
