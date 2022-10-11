@@ -36,7 +36,7 @@ jobs:
       - run:
           name: Running tests
           command: |
-            mvn --settings settings.xml
+            mvn --settings .circleci/settings.xml
               -Dtest=$(for file in $(circleci tests glob "src/test/**/**.java" |
                 circleci tests split --split-by=timings); \
                 do basename $file | sed -e "s/.java/,/"; done |
@@ -53,7 +53,7 @@ jobs:
       - setup
       - run:
           name: Maven build
-          command: mvn --settings settings.xml -Dmaven.test.skip=true package
+          command: mvn --settings .circleci/settings.xml -Dmaven.test.skip=true package
       - persist_to_workspace:
           root: ./
           paths:
