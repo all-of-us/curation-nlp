@@ -4,7 +4,7 @@ version: 2.1
 job_defaults: &job_defaults
     docker:
         # Use custom docker image from artifact registry
-      - image: $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_ID/$CONTAINER_ID:1.1
+      - image: $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_ID/$CONTAINER_ID:1.2
         auth:
           username: _json_key_base64
           password: $GCLOUD_SERVICE_ACCOUNT
