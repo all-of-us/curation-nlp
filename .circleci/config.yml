@@ -53,7 +53,7 @@ jobs:
       - setup
       - run:
           name: Maven build
-          command: mvn -Dmaven.test.skip=true package
+          command: mvn --settings settings.xml -Dmaven.test.skip=true package
       - persist_to_workspace:
           root: ./
           paths:
