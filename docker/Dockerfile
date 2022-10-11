@@ -15,14 +15,19 @@ LABEL org.opencontainers.image.description="Base development container image use
 ## OS INIT
 # run the base container init first, as it is highly unlikely to change.
 # this allows us to modify subsequent steps without initating a full image rebuild
+
+# Update and upgrade
 RUN apt update \
-    && apt upgrade -y \
-    && apt install -y \
+    && apt upgrade -y
+
+# Install basic tools
+RUN apt install -y \
       curl \
       git \
-      wget \
-      openjdk-8-jdk \
-      maven \
+      wget
+
+# Install python 3.7
+RUN apt install -y \
       python3.7-dev \
       python3.7-venv \
       python3-pip \
@@ -30,17 +35,40 @@ RUN apt update \
     && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.7 1 \
     && update-alternatives --install /usr/bin/python python /usr/bin/python3.7 1
 
+# Install Java 8
+RUN apt install -y \
+      openjdk-8-jdk \
+      openjdk-8-jre
+
+# Install maven
+ENV JAVA_VER 8
+ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
+ENV MAVEN_VERSION 3.8.6
+
+RUN mkdir -p /usr/share/maven \
+  && curl -fsSL https://dlcdn.apache.org/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz \
+    | tar -xzC /usr/share/maven --strip-components=1 \
+  && ln -s /usr/share/maven/bin/mvn /usr/bin/mvn
+
+ENV MAVEN_HOME /usr/share/maven
+
 ## BUILD ARGS
 
 # this will be the name of our in-container user
 ARG CURATION_USER="curation_nlp"
 ARG CURATION_HOME="/home/${CURATION_USER}"
 
+# Install gcloud dependencies
+RUN apt install -y \
+      apt-transport-https \
+      ca-certificates \
+      gnupg
+
 # gsdk args
-ARG GSDK_VERSION="360.0.0"
-ARG GSDK_CHECKSUM="6192cb2791f592da6d372888dbd7ee81d3d91f255d844ab5fc518fc97e453648"
+ARG GSDK_VERSION="405.0.0"
+ARG GSDK_CHECKSUM="ce70e0f2783bf3970acb60e943c9510d43c12a7f28c97aeb9dd52ff4a5fe62bf"
 ARG GSDK_INSTALL_PATH="${CURATION_HOME}/google-cloud-sdk"
-ARG GSDK_TAR_FILE="google-cloud-sdk-${GSDK_VERSION}-linux-x86_64.tar.gz"
+ARG GSDK_TAR_FILE="google-cloud-cli-${GSDK_VERSION}-linux-x86_64.tar.gz"
 ARG GSDK_DOWNLOAD="https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/${GSDK_TAR_FILE}"
 
 # download gsdk and verify checksum
@@ -63,3 +91,5 @@ RUN echo "source ${GSDK_INSTALL_PATH}/path.bash.inc" | tee --append "${CURATION_
     && echo "source ${GSDK_INSTALL_PATH}/completion.bash.inc" | tee --append "${CURATION_HOME}/.bashrc" "${CURATION_HOME}/.profile" \
     && source "${CURATION_HOME}/.bashrc" \
     && gcloud components update
+
+ENV PATH "${PATH}:${GSDK_INSTALL_PATH}/bin"
