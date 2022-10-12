@@ -19,7 +19,7 @@ steps:
       - |
         echo "Build identifier = ${BUILD_ID}_${SHORT_SHA}"
         mvn compile exec:java \
-          --settings settings.xml
+          --settings settings.xml \
           -Dexec.mainClass="org.allofus.curation.pipeline.CurationNLPMain" \
           -Dexec.args="--project=${PROJECT_ID} \
             --gcpTempLocation=$${LOCATION}/tmp \
