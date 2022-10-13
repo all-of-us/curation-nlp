@@ -36,3 +36,7 @@ hs_err_pid*
 
 # History files
 .history/
+
+# Resource files
+src/main/resources/pipeline/
+src/main/resources/index/
