@@ -176,12 +176,12 @@ public class RunCLAMPStringFn extends DoFn<CSVRecord, String> {
 		int e = cne.getEnd();
 		s = Math.max(sec.getBegin(), s);
 		e = Math.min(sec.getEnd(), e);
-		String snippet = "";
+		StringBuilder snippet = new StringBuilder();
 		for (ClampToken t : XmiUtil.selectToken(doc.getJCas(), s, e)) {
-			snippet += t.textStr() + " ";
+			snippet.append(t.textStr()).append(" ");
 		}
-		snippet = snippet.trim();
-		return snippet;
+		snippet = new StringBuilder(snippet.toString().trim());
+		return snippet.toString();
 	}
 
 	private String getOffset(ClampNameEntity cne) {
@@ -238,15 +238,15 @@ public class RunCLAMPStringFn extends DoFn<CSVRecord, String> {
 	}
 
 	private String getTermModifiers(ClampNameEntity cne) {
-		String term_modifiers = "";
+		StringBuilder term_modifiers = new StringBuilder();
 		for (String k : attrMap.keySet()) {
-			term_modifiers += k + "=[" + attrMap.get(k) + "], ";
+			term_modifiers.append(k).append("=[").append(attrMap.get(k)).append("], ");
 		}
-		term_modifiers = term_modifiers.trim();
-		if (term_modifiers.endsWith(",")) {
-			term_modifiers = term_modifiers.substring(0, term_modifiers.length() - 1);
+		term_modifiers = new StringBuilder(term_modifiers.toString().trim());
+		if (term_modifiers.toString().endsWith(",")) {
+			term_modifiers = new StringBuilder(term_modifiers.substring(0, term_modifiers.length() - 1));
 		}
 
-		return term_modifiers;
+		return term_modifiers.toString();
 	}
 }
