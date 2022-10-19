@@ -59,6 +59,7 @@ public class RunCLAMPStringFn extends DoFn<CSVRecord, String> {
     File outPath;
     private String umlsIndexDir;
     private String pipeline_file;
+	private static final Logger log = LoggerFactory.getLogger(Processor.class);
 	private Map<String, String> attrMap = null;
 
     public void init_clamp(CurationNLPOptions options) {
@@ -120,7 +121,7 @@ public class RunCLAMPStringFn extends DoFn<CSVRecord, String> {
                 }
             }
 			writeResult(doc, noteid, receiver);
-        } catch (IOException | UIMAException e) {
+        } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -171,10 +172,10 @@ public class RunCLAMPStringFn extends DoFn<CSVRecord, String> {
 	}
 
 	private String getSnippet(Document doc, ClampSection sec, ClampNameEntity cne) {
-		int s = cne.getBegin(); // - RunPipeline.WINDOWSIZE;
-		int e = cne.getEnd(); // RunPipeline.WINDOWSIZE;
-		s = sec.getBegin() > s ? sec.getBegin() : s;
-		e = sec.getEnd() > e ? e : sec.getEnd();
+		int s = cne.getBegin();
+		int e = cne.getEnd();
+		s = Math.max(sec.getBegin(), s);
+		e = Math.min(sec.getEnd(), e);
 		String snippet = "";
 		for (ClampToken t : XmiUtil.selectToken(doc.getJCas(), s, e)) {
 			snippet += t.textStr() + " ";
@@ -203,11 +204,10 @@ public class RunCLAMPStringFn extends DoFn<CSVRecord, String> {
 		if (attrMap.containsKey("CON")) {
 			term_exists = false;
 		}
-		if (attrMap.containsKey("SUB") && attrMap.get("SUB").toLowerCase().indexOf("patient") < 0
-				&& attrMap.get("SUB").toLowerCase().indexOf("pt") < 0) {
+		if (attrMap.containsKey("SUB") && !attrMap.get("SUB").toLowerCase().contains("patient")
+				&& !attrMap.get("SUB").toLowerCase().contains("pt")) {
 			term_exists = false;
 		}
-
 		return String.valueOf(term_exists);
 	}
 
@@ -225,7 +225,7 @@ public class RunCLAMPStringFn extends DoFn<CSVRecord, String> {
 				continue;
 			}
 			String k = t.getSemanticTag();
-			if (k.indexOf(":") >= 0) {
+			if (k.contains(":")) {
 				k = k.substring(k.lastIndexOf(":") + 1);
 			}
 			attrMap.putIfAbsent(k, "");
