@@ -31,30 +31,30 @@ public class CurationNLPMain {
 
     static void runCurationNLP(CurationNLPOptions options) {
         Pipeline p = Pipeline.create(options);
-		RunCLAMPStringFn clamp_str_fn = new RunCLAMPStringFn();
-		clamp_str_fn.init_clamp(options);
-		p.apply(FileIO.match().filepattern(options.getInput() + "*.csv"))
-			.apply(FileIO.readMatches())
-			.apply(ParDo.of(
-					new DoFn<FileIO.ReadableFile, CSVRecord>() {
-						@ProcessElement
-						public void processElement(@Element FileIO.ReadableFile element, OutputReceiver<CSVRecord> receiver) throws IOException {
-							InputStream is = Channels.newInputStream(element.open());
-							Reader reader = new InputStreamReader(is, StandardCharsets.UTF_8);
-							Iterable<CSVRecord> records = CSVFormat.DEFAULT.withHeader(Header.class).withDelimiter(',').withFirstRecordAsHeader().parse(reader);
-							for (CSVRecord record : records) {
-								receiver.output(record);
-							}
-						}
-					}
-			))
-			.apply(ParDo.of(clamp_str_fn))
-			.apply(TextIO.write()
-				   .to(options.getOutput()+"/note_output")
-				   .withHeader("note_id,")
-				   .withoutSharding()
-				   .withSuffix(".csv")
-			 );
+        RunCLAMPStringFn clamp_str_fn = new RunCLAMPStringFn();
+        clamp_str_fn.init_clamp(options);
+        p.apply(FileIO.match().filepattern(options.getInput() + "*.csv"))
+                .apply(FileIO.readMatches())
+                .apply(ParDo.of(
+                        new DoFn<FileIO.ReadableFile, CSVRecord>() {
+                            @ProcessElement
+                            public void processElement(@Element FileIO.ReadableFile element, OutputReceiver<CSVRecord> receiver) throws IOException {
+                                InputStream is = Channels.newInputStream(element.open());
+                                Reader reader = new InputStreamReader(is, StandardCharsets.UTF_8);
+                                Iterable<CSVRecord> records = CSVFormat.DEFAULT.withHeader(Header.class).withDelimiter(',').withFirstRecordAsHeader().parse(reader);
+                                for (CSVRecord record : records) {
+                                    receiver.output(record);
+                                }
+                            }
+                        }
+                ))
+                .apply(ParDo.of(clamp_str_fn))
+                .apply(TextIO.write()
+                        .to(options.getOutput() + "/note_output")
+                        .withHeader("note_id,")
+                        .withoutSharding()
+                        .withSuffix(".csv")
+                );
 
         p.run().waitUntilFinish();
     }
