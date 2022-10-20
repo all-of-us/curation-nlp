@@ -59,8 +59,8 @@ public class RunCLAMPStringFn extends DoFn<CSVRecord, String> {
     File outPath;
     private String umlsIndexDir;
     private String pipeline_file;
-	private static final Logger log = LoggerFactory.getLogger(Processor.class);
-	private Map<String, String> attrMap = null;
+    private static final Logger log = LoggerFactory.getLogger(Processor.class);
+    private Map<String, String> attrMap = null;
 
     public void init_clamp(CurationNLPOptions options) {
         String outDir = options.getOutput();
@@ -109,8 +109,8 @@ public class RunCLAMPStringFn extends DoFn<CSVRecord, String> {
     @ProcessElement
     public void processElement(@Element CSVRecord csvRecord, OutputReceiver<String> receiver) {
         try {
-			String noteid = csvRecord.get(0);
-			String text = csvRecord.get(9);
+            String noteid = csvRecord.get(0);
+            String text = csvRecord.get(9);
             Document doc = new Document(noteid, text);
             for (DocProcessor proc : procList) {
                 try {
@@ -120,7 +120,7 @@ public class RunCLAMPStringFn extends DoFn<CSVRecord, String> {
                     e.printStackTrace();
                 }
             }
-			writeResult(doc, noteid, receiver);
+            writeResult(doc, noteid, receiver);
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -128,19 +128,20 @@ public class RunCLAMPStringFn extends DoFn<CSVRecord, String> {
         System.out.println(receiver);
         System.out.println("document processed..");
     }
-	public void writeResult(Document doc, String noteId, OutputReceiver<String> receiver) throws Exception { // DocumentIOException {
-		Date date = new Date();
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
-		String nlpDate= dateFormat.format(date);
-		try {
-			for (ClampSection sec : doc.getSections()) {
-				for (ClampNameEntity cne : XmiUtil.selectNE(doc.getJCas(), sec.getBegin(), sec.getEnd())) {
-					String strRowEscaped = StringEscapeUtils.escapeCsv(noteId+","+noteId+","+"1"+","+getSnippet(doc, sec, cne)+","+getOffset(cne)+","+
-							getLexicalVariant(cne)+","+getNoteNlpConceptId(cne)+","+"1"+","+"CLAMP 1.7.1"+","+
-							nlpDate+","+nlpDate+","+getTermTemporal(doc,cne)+","+
-							getTermModifiers(cne)+","+getTermExists(cne));
-					System.out.println(strRowEscaped);
-					receiver.output(strRowEscaped);
+
+    public void writeResult(Document doc, String noteId, OutputReceiver<String> receiver) throws Exception { // DocumentIOException {
+        Date date = new Date();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        String nlpDate = dateFormat.format(date);
+        try {
+            for (ClampSection sec : doc.getSections()) {
+                for (ClampNameEntity cne : XmiUtil.selectNE(doc.getJCas(), sec.getBegin(), sec.getEnd())) {
+                    String strRowEscaped = StringEscapeUtils.escapeCsv(noteId + "," + noteId + "," + "1" + "," + getSnippet(doc, sec, cne) + "," + getOffset(cne) + "," +
+                            getLexicalVariant(cne) + "," + getNoteNlpConceptId(cne) + "," + "1" + "," + "CLAMP 1.7.1" + "," +
+                            nlpDate + "," + nlpDate + "," + getTermTemporal(doc, cne) + "," +
+                            getTermModifiers(cne) + "," + getTermExists(cne));
+                    System.out.println(strRowEscaped);
+                    receiver.output(strRowEscaped);
 					/*new HashMap<String, Object>(){{
 					        	put("note_nlp_id", noteId);
 								put("noteid", noteId);
@@ -157,96 +158,96 @@ public class RunCLAMPStringFn extends DoFn<CSVRecord, String> {
 								put("term_modifiers", getTermModifiers(cne));
 								put("term_exists", getTermExists(cne));
 					}}*/
-				}
-			}
-			//runTableInsertRowsWithoutRowIds(rowContent);
-		} catch (Exception e) {
-			log.error("Error while attempting to write results : " + e.getMessage());
-			e.printStackTrace();
-			throw new Exception();
-		}
-	}
+                }
+            }
+            //runTableInsertRowsWithoutRowIds(rowContent);
+        } catch (Exception e) {
+            log.error("Error while attempting to write results : " + e.getMessage());
+            e.printStackTrace();
+            throw new Exception();
+        }
+    }
 
-	private int getSectionConceptId(ClampSection sec) {
-		return Integer.parseInt(sec.getSectionName());
-	}
+    private int getSectionConceptId(ClampSection sec) {
+        return Integer.parseInt(sec.getSectionName());
+    }
 
-	private String getSnippet(Document doc, ClampSection sec, ClampNameEntity cne) {
-		int s = cne.getBegin();
-		int e = cne.getEnd();
-		s = Math.max(sec.getBegin(), s);
-		e = Math.min(sec.getEnd(), e);
-		StringBuilder snippet = new StringBuilder();
-		for (ClampToken t : XmiUtil.selectToken(doc.getJCas(), s, e)) {
-			snippet.append(t.textStr()).append(" ");
-		}
-		snippet = new StringBuilder(snippet.toString().trim());
-		return snippet.toString();
-	}
+    private String getSnippet(Document doc, ClampSection sec, ClampNameEntity cne) {
+        int s = cne.getBegin();
+        int e = cne.getEnd();
+        s = Math.max(sec.getBegin(), s);
+        e = Math.min(sec.getEnd(), e);
+        StringBuilder snippet = new StringBuilder();
+        for (ClampToken t : XmiUtil.selectToken(doc.getJCas(), s, e)) {
+            snippet.append(t.textStr()).append(" ");
+        }
+        snippet = new StringBuilder(snippet.toString().trim());
+        return snippet.toString();
+    }
 
-	private String getOffset(ClampNameEntity cne) {
-		return cne.getBegin() + "-" + cne.getEnd();
-	}
+    private String getOffset(ClampNameEntity cne) {
+        return cne.getBegin() + "-" + cne.getEnd();
+    }
 
-	private String getLexicalVariant(ClampNameEntity cne) {
-		return cne.textStr();
-	}
+    private String getLexicalVariant(ClampNameEntity cne) {
+        return cne.textStr();
+    }
 
-	private int getNoteNlpConceptId(ClampNameEntity cne) {
-		return 0;
-	}
+    private int getNoteNlpConceptId(ClampNameEntity cne) {
+        return 0;
+    }
 
-	private String getTermExists(ClampNameEntity cne) {
-		Boolean term_exists = true;
-		if (cne.getAssertion() != null && cne.getAssertion().equals("absent")) {
-			term_exists = false;
-		}
-		if (attrMap.containsKey("CON")) {
-			term_exists = false;
-		}
-		if (attrMap.containsKey("SUB") && !attrMap.get("SUB").toLowerCase().contains("patient")
-				&& !attrMap.get("SUB").toLowerCase().contains("pt")) {
-			term_exists = false;
-		}
-		return String.valueOf(term_exists);
-	}
+    private String getTermExists(ClampNameEntity cne) {
+        Boolean term_exists = true;
+        if (cne.getAssertion() != null && cne.getAssertion().equals("absent")) {
+            term_exists = false;
+        }
+        if (attrMap.containsKey("CON")) {
+            term_exists = false;
+        }
+        if (attrMap.containsKey("SUB") && !attrMap.get("SUB").toLowerCase().contains("patient")
+                && !attrMap.get("SUB").toLowerCase().contains("pt")) {
+            term_exists = false;
+        }
+        return String.valueOf(term_exists);
+    }
 
-	private String getTermTemporal(Document doc, ClampNameEntity cne) {
-		attrMap = new HashMap<String, String>();
-		String term_temporal = "";
-		for (ClampRelation rel : doc.getRelations()) {
-			ClampNameEntity t = null;
-			if (rel.getEntFrom().getUimaEnt().equals(cne.getUimaEnt())) {
-				t = rel.getEntTo();
-			} else if (rel.getEntTo().getUimaEnt().equals(cne.getUimaEnt())) {
-				t = rel.getEntFrom();
-			}
-			if (t == null) {
-				continue;
-			}
-			String k = t.getSemanticTag();
-			if (k.contains(":")) {
-				k = k.substring(k.lastIndexOf(":") + 1);
-			}
-			attrMap.putIfAbsent(k, "");
-			attrMap.put(k, (attrMap.get(k) + " " + t.textStr()).trim());
-		}
-		if (attrMap.containsKey("temporal")) {
-			term_temporal = attrMap.get("temporal");
-		}
-		return term_temporal;
-	}
+    private String getTermTemporal(Document doc, ClampNameEntity cne) {
+        attrMap = new HashMap<>();
+        String term_temporal = "";
+        for (ClampRelation rel : doc.getRelations()) {
+            ClampNameEntity t = null;
+            if (rel.getEntFrom().getUimaEnt().equals(cne.getUimaEnt())) {
+                t = rel.getEntTo();
+            } else if (rel.getEntTo().getUimaEnt().equals(cne.getUimaEnt())) {
+                t = rel.getEntFrom();
+            }
+            if (t == null) {
+                continue;
+            }
+            String k = t.getSemanticTag();
+            if (k.contains(":")) {
+                k = k.substring(k.lastIndexOf(":") + 1);
+            }
+            attrMap.putIfAbsent(k, "");
+            attrMap.put(k, (attrMap.get(k) + " " + t.textStr()).trim());
+        }
+        if (attrMap.containsKey("temporal")) {
+            term_temporal = attrMap.get("temporal");
+        }
+        return term_temporal;
+    }
 
-	private String getTermModifiers(ClampNameEntity cne) {
-		StringBuilder term_modifiers = new StringBuilder();
-		for (String k : attrMap.keySet()) {
-			term_modifiers.append(k).append("=[").append(attrMap.get(k)).append("], ");
-		}
-		term_modifiers = new StringBuilder(term_modifiers.toString().trim());
-		if (term_modifiers.toString().endsWith(",")) {
-			term_modifiers = new StringBuilder(term_modifiers.substring(0, term_modifiers.length() - 1));
-		}
+    private String getTermModifiers(ClampNameEntity cne) {
+        StringBuilder term_modifiers = new StringBuilder();
+        for (String k : attrMap.keySet()) {
+            term_modifiers.append(k).append("=[").append(attrMap.get(k)).append("], ");
+        }
+        term_modifiers = new StringBuilder(term_modifiers.toString().trim());
+        if (term_modifiers.toString().endsWith(",")) {
+            term_modifiers = new StringBuilder(term_modifiers.substring(0, term_modifiers.length() - 1));
+        }
 
-		return term_modifiers.toString();
-	}
+        return term_modifiers.toString();
+    }
 }
