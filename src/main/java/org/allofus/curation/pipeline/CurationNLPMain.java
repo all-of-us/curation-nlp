@@ -6,19 +6,22 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.channels.Channels;
 import java.nio.charset.StandardCharsets;
-import java.text.ParseException;
 
+import edu.uth.clamp.config.ConfigurationException;
+import edu.uth.clamp.io.DocumentIOException;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.FileIO;
 import org.apache.beam.sdk.io.TextIO;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
+import org.apache.beam.sdk.schemas.Schema;
+import org.apache.beam.sdk.schemas.SchemaCoder;
 import org.apache.beam.sdk.transforms.DoFn;
-import org.apache.beam.sdk.transforms.DoFn.OutputReceiver;
-import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.transforms.ToJson;
 import org.apache.beam.sdk.values.Row;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
+import org.joda.time.format.DateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,10 +32,12 @@ import java.time.Instant;
 public class CurationNLPMain {
     private static final Logger LOG = LoggerFactory.getLogger(CurationNLPMain.class);
 
-    static void runCurationNLP(CurationNLPOptions options) {
+    static void runCurationNLP(CurationNLPOptions options) throws ConfigurationException, DocumentIOException, IOException {
         Pipeline p = Pipeline.create(options);
-        RunCLAMPStringFn clamp_str_fn = new RunCLAMPStringFn();
+        RunCLAMPFn clamp_str_fn = new RunCLAMPFn();
         clamp_str_fn.init_clamp(options);
+        Schema note_schema = ReadSchemaFromJson.ReadSchema("note.json");
+        Schema note_nlp_schema = ReadSchemaFromJson.ReadSchema("note_nlp.json");
         p.apply(FileIO.match().filepattern(options.getInput() + "*.csv"))
                 .apply(FileIO.readMatches())
                 .apply(ParDo.of(
@@ -47,20 +52,41 @@ public class CurationNLPMain {
                                 }
                             }
                         }
-                ))
-                .apply(ParDo.of(clamp_str_fn))
+                )).apply(ParDo.of(
+                        new DoFn<CSVRecord, Row>() {
+                            @ProcessElement
+                            public void processElement(@Element CSVRecord element, OutputReceiver<Row> receiver) {
+                                Schema schema = ReadSchemaFromJson.ReadSchema("note.json");
+                                Row output = Row.withSchema(schema)
+                                        .addValue(Long.valueOf(element.get(0)))
+                                        .addValue(Long.valueOf(element.get(1)))
+                                        .addValue(DateTimeFormat.forPattern("yyyy-MM-dd").parseDateTime(element.get(2)))
+                                        .addValue(DateTimeFormat.forPattern("yyyy-MM-dd hh:mm:ss").parseDateTime(element.get(3)))
+                                        .addValue(Long.valueOf(element.get(4)))
+                                        .addValue(Long.valueOf(element.get(5)))
+                                        .addValue(element.get(6))
+                                        .addValue(element.get(7))
+                                        .addValue(Long.valueOf(element.get(8)))
+                                        .addValue(Long.valueOf(element.get(9)))
+                                        .addValue(Long.valueOf(element.get(10)))
+                                        .addValue(Long.valueOf(element.get(11)))
+                                        .addValue(Long.valueOf(element.get(12)))
+                                        .addValue(element.get(13)).build();
+                                receiver.output(output);
+                            }
+                        }
+                )).setCoder(SchemaCoder.of(note_schema)).setRowSchema(note_schema)
+                .apply(ParDo.of(clamp_str_fn)).setCoder(SchemaCoder.of(note_nlp_schema)).setRowSchema(note_nlp_schema)
+                .apply("Serialize to Json", ToJson.of())
                 .apply(TextIO.write()
-                        .to(options.getOutput() + "/note_output")
-                        .withHeader("note_id,")
-                        .withoutSharding()
-                        .withSuffix(".csv")
+                        .to(options.getOutput() + "output")
+                        .withSuffix(".jsonl")
                 );
 
         p.run().waitUntilFinish();
     }
 
-    public static void main(String[] args) {
-        System.out.println("start...");
+    public static void main(String[] args) throws ConfigurationException, DocumentIOException, IOException {
         Instant start = Instant.now();
         CurationNLPOptions options =
                 PipelineOptionsFactory.fromArgs(args).withValidation().as(CurationNLPOptions.class);
