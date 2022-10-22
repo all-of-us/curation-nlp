@@ -1,12 +1,5 @@
 package org.allofus.curation.pipeline;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.nio.channels.Channels;
-import java.nio.charset.StandardCharsets;
-
 import edu.uth.clamp.config.ConfigurationException;
 import edu.uth.clamp.io.DocumentIOException;
 import org.apache.beam.sdk.Pipeline;
@@ -25,6 +18,12 @@ import org.joda.time.format.DateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.channels.Channels;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 

@@ -1,5 +1,20 @@
 package org.allofus.curation.pipeline;
 
+import edu.uth.clamp.config.ConfigUtil;
+import edu.uth.clamp.config.ConfigurationException;
+import edu.uth.clamp.config.Processor;
+import edu.uth.clamp.io.DocumentIOException;
+import edu.uth.clamp.nlp.encoding.MaxMatchingUmlsEncoderCovid;
+import edu.uth.clamp.nlp.encoding.RxNormEncoderUIMA;
+import edu.uth.clamp.nlp.structure.*;
+import edu.uth.clamp.nlp.uima.UmlsEncoderUIMA;
+import org.apache.beam.sdk.schemas.Schema;
+import org.apache.beam.sdk.transforms.DoFn;
+import org.apache.beam.sdk.values.Row;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -7,34 +22,16 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.List;
-
-import edu.uth.clamp.nlp.structure.*;
-import org.apache.beam.sdk.schemas.Schema;
-import org.apache.beam.sdk.transforms.DoFn;
-import org.apache.beam.sdk.values.Row;
-import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
-
-import edu.uth.clamp.config.ConfigUtil;
-import edu.uth.clamp.config.ConfigurationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import edu.uth.clamp.config.Processor;
-import edu.uth.clamp.io.DocumentIOException;
-import edu.uth.clamp.nlp.encoding.MaxMatchingUmlsEncoderCovid;
-import edu.uth.clamp.nlp.encoding.RxNormEncoderUIMA;
-import edu.uth.clamp.nlp.uima.UmlsEncoderUIMA;
 
 
 public class RunCLAMPFn extends DoFn<Row, Row> {
     //public class RunCLAMPFn extends DoFn<String, String>  {
     private static final ReentrantLock INIT_MUTEX_LOCK = new ReentrantLock();
+    private static final Logger log = LoggerFactory.getLogger(Processor.class);
     private final List<DocProcessor> procList = new ArrayList<>();
     File outPath;
     private String umlsIndexDir;
     private String pipeline_file;
-    private static final Logger log = LoggerFactory.getLogger(Processor.class);
     private Map<String, String> attrMap = null;
 
     public void init_clamp(CurationNLPOptions options) throws ConfigurationException, DocumentIOException, IOException {

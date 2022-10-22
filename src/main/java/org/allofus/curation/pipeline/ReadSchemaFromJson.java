@@ -20,7 +20,7 @@ public class ReadSchemaFromJson {
             String project_home = System.getProperty("user.dir");
             String resources_dir = project_home + "/src/main/resources";
             String schema_path = resources_dir + "/schemas/cdm/clinical/";
-            byte[] encoded = Files.readAllBytes(Paths.get(schema_path+file_path));
+            byte[] encoded = Files.readAllBytes(Paths.get(schema_path + file_path));
             String file_string = new String(encoded, StandardCharsets.UTF_8);
             JsonArray schema_json_array = JsonParser.parseString(file_string).getAsJsonArray();
 

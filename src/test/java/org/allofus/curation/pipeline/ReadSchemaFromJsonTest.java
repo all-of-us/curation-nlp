@@ -32,12 +32,6 @@ public class ReadSchemaFromJsonTest extends TestCase {
         return Schema.of(FIELDS.toArray(new Schema.Field[0]));
     }
 
-    public void testVerifyNoteSchema() {
-        Schema expected_schema = getNoteSchema();
-        Schema actual_schema = ReadSchemaFromJson.ReadSchema("note.json");
-        assertThat(actual_schema, sameBeanAs(expected_schema).ignoring("description").ignoring("options"));
-    }
-
     @Rule
     static Schema getNoteNLPSchema() {
         List<Schema.Field> FIELDS = new LinkedList<>();
@@ -57,6 +51,13 @@ public class ReadSchemaFromJsonTest extends TestCase {
         FIELDS.add(Schema.Field.nullable("term_modifiers", Schema.FieldType.STRING));
         return Schema.of(FIELDS.toArray(new Schema.Field[0]));
     }
+
+    public void testVerifyNoteSchema() {
+        Schema expected_schema = getNoteSchema();
+        Schema actual_schema = ReadSchemaFromJson.ReadSchema("note.json");
+        assertThat(actual_schema, sameBeanAs(expected_schema).ignoring("description").ignoring("options"));
+    }
+
     public void testVerifyNoteNLPSchema() {
         Schema expected_schema = getNoteNLPSchema();
         Schema actual_schema = ReadSchemaFromJson.ReadSchema("note_nlp.json");
