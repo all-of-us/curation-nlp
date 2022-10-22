@@ -6,22 +6,27 @@ import org.apache.beam.sdk.options.Validation;
 
 public interface CurationNLPOptions extends PipelineOptions {
 
-    @Description("Path of the file to read from")
+    @Description("Path of the directory to read from")
     @Validation.Required
     String getInput();
     void setInput(String value);
 
-    @Description("input file extension, e.g: txt, csv, json")
+    @Description("Path of the directory containing resources for UMLS index, pipeline jar")
+    @Validation.Required
+    String getResourcesDir();
+    void setResourcesDir(String value);
+
+    @Description("input file extension, e.g: csv, jsonl, bigquery")
     @Validation.Required
     String getInputExt();
     void setInputExt(String value);
 
-    @Description("output file extension, e.g: csv, note_nlp (table)")
+    @Description("output file extension, e.g: csv, jsonl, bigquery")
     @Validation.Required
     String getOutputExt();
     void setOutputExt(String value);
 
-    @Description("Path of the file to write to")
+    @Description("Path of the directory to write to")
     @Validation.Required
     String getOutput();
     void setOutput(String value);
