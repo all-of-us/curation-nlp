@@ -31,20 +31,17 @@ public class RunCLAMPFn extends DoFn<Row, Row> {
     private static final Logger log = LoggerFactory.getLogger(Processor.class);
     private final List<DocProcessor> procList = new ArrayList<>();
     File outPath;
-    private String umlsIndexDir;
-    private String pipeline_file;
     private Map<String, String> attrMap = null;
 
     public void init_clamp(CurationNLPOptions options) throws ConfigurationException, DocumentIOException, IOException {
         String outDir = options.getOutput();
         this.outPath = new File(outDir);
-        String project_home = System.getProperty("user.dir");
-        String resources_dir = project_home + "/src/main/resources";
-        this.umlsIndexDir = resources_dir + "/index/umls_index";
-        this.pipeline_file = resources_dir + "/pipeline/clamp-ner.pipeline.jar";
+        String resources_dir = options.getResourcesDir();
+        String umlsIndexDir = resources_dir + "/index/umls_index";
+        String pipeline_file = resources_dir + "/pipeline/clamp-ner.pipeline.jar";
         List<DocProcessor> pipeline;
-        File umlsIndex = new File(this.umlsIndexDir);
-        File pipelineJar = new File(this.pipeline_file);
+        File umlsIndex = new File(umlsIndexDir);
+        File pipelineJar = new File(pipeline_file);
 
         Instant start = Instant.now();
         try {
