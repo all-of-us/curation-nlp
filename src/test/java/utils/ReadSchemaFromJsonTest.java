@@ -1,8 +1,9 @@
-package org.allofus.curation.pipeline;
+package utils;
 
 import junit.framework.TestCase;
 import org.apache.beam.sdk.schemas.Schema;
 import org.junit.Rule;
+import utils.ReadSchemaFromJson;
 
 import java.util.LinkedList;
 import java.util.List;

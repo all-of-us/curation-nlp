@@ -17,6 +17,7 @@ import org.apache.commons.csv.CSVRecord;
 import org.joda.time.format.DateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import utils.ReadSchemaFromJson;
 
 import java.io.IOException;
 import java.io.InputStream;
