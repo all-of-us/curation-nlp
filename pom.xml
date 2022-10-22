@@ -28,6 +28,7 @@
         <jacoco.version>0.8.3</jacoco.version>
         <clamp.version>1.7.1</clamp.version>
         <artifact-registry.version>2.1.5</artifact-registry.version>
+        <shazamcrest.version>0.11</shazamcrest.version>
     </properties>
 
     <build>
@@ -292,6 +293,11 @@
             <artifactId>hamcrest-all</artifactId>
             <version>${hamcrest.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.shazam</groupId>
+            <artifactId>shazamcrest</artifactId>
+            <version>${shazamcrest.version}</version>
         </dependency>
         <dependency>
             <groupId>edu.uth.clamp</groupId>
