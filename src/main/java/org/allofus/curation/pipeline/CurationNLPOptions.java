@@ -6,32 +6,38 @@ import org.apache.beam.sdk.options.Validation;
 
 public interface CurationNLPOptions extends PipelineOptions {
 
-    @Description("Path of the directory to read from")
-    @Validation.Required
-    String getInput();
-    void setInput(String value);
+  @Description("Path of the directory/table to read from")
+  @Validation.Required
+  String getInput();
 
-    @Description("Path of the directory containing resources for UMLS index, pipeline jar")
-    @Validation.Required
-    String getResourcesDir();
-    void setResourcesDir(String value);
+  void setInput(String value);
 
-    @Description("input file extension, e.g: csv, jsonl, bigquery")
-    @Validation.Required
-    String getInputExt();
-    void setInputExt(String value);
+  @Description("Path of the directory containing resources for UMLS index, pipeline jar")
+  @Validation.Required
+  String getResourcesDir();
 
-    @Description("output file extension, e.g: csv, jsonl, bigquery")
-    @Validation.Required
-    String getOutputExt();
-    void setOutputExt(String value);
+  void setResourcesDir(String value);
 
-    @Description("Path of the directory to write to")
-    @Validation.Required
-    String getOutput();
-    void setOutput(String value);
+  @Description("Input file type, e.g: csv, jsonl, bigquery")
+  @Validation.Required
+  String getInputType();
 
-    @Description("Build Identifier")
-    String getBuildId();
-    void setBuildId(String BuildId);
+  void setInputType(String value);
+
+  @Description("Output file type, e.g: csv, jsonl, bigquery")
+  @Validation.Required
+  String getOutputType();
+
+  void setOutputType(String value);
+
+  @Description("Path of the directory/table to write to")
+  @Validation.Required
+  String getOutput();
+
+  void setOutput(String value);
+
+  @Description("Build Identifier")
+  String getBuildId();
+
+  void setBuildId(String BuildId);
 }
