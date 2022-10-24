@@ -11,6 +11,16 @@ public interface CurationNLPOptions extends PipelineOptions {
     String getInput();
     void setInput(String value);
 
+    @Description("input file extension, e.g: txt, csv, json")
+    @Validation.Required
+    String getInputExt();
+    void setInputExt(String value);
+
+    @Description("output file extension, e.g: csv, note_nlp (table)")
+    @Validation.Required
+    String getOutputExt();
+    void setOutputExt(String value);
+
     @Description("Path of the file to write to")
     @Validation.Required
     String getOutput();

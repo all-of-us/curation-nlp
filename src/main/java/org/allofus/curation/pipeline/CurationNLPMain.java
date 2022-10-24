@@ -13,8 +13,10 @@ import org.apache.beam.sdk.io.FileIO;
 import org.apache.beam.sdk.io.TextIO;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.DoFn;
+import org.apache.beam.sdk.transforms.DoFn.OutputReceiver;
 import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.values.Row;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
@@ -46,7 +48,13 @@ public class CurationNLPMain {
                             }
                         }
                 ))
-                .apply(ParDo.of(clamp_str_fn));
+                .apply(ParDo.of(clamp_str_fn))
+                .apply(TextIO.write()
+                        .to(options.getOutput() + "/note_output")
+                        .withHeader("note_id,")
+                        .withoutSharding()
+                        .withSuffix(".csv")
+                );
 
         p.run().waitUntilFinish();
     }
