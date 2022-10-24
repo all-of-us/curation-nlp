@@ -17,8 +17,8 @@ public class ReadSchemaFromJsonTest extends TestCase {
     List<Schema.Field> FIELDS = new LinkedList<>();
     FIELDS.add(Schema.Field.nullable("note_id", Schema.FieldType.INT64));
     FIELDS.add(Schema.Field.nullable("person_id", Schema.FieldType.INT64));
-    FIELDS.add(Schema.Field.nullable("note_date", Schema.FieldType.DATETIME));
-    FIELDS.add(Schema.Field.nullable("note_datetime", Schema.FieldType.DATETIME));
+    FIELDS.add(Schema.Field.nullable("note_date", Schema.FieldType.STRING));
+    FIELDS.add(Schema.Field.nullable("note_datetime", Schema.FieldType.STRING));
     FIELDS.add(Schema.Field.nullable("note_type_concept_id", Schema.FieldType.INT64));
     FIELDS.add(Schema.Field.nullable("note_class_concept_id", Schema.FieldType.INT64));
     FIELDS.add(Schema.Field.nullable("note_title", Schema.FieldType.STRING));
@@ -44,8 +44,8 @@ public class ReadSchemaFromJsonTest extends TestCase {
     FIELDS.add(Schema.Field.nullable("note_nlp_concept_id", Schema.FieldType.INT64));
     FIELDS.add(Schema.Field.nullable("note_nlp_source_concept_id", Schema.FieldType.INT64));
     FIELDS.add(Schema.Field.nullable("nlp_system", Schema.FieldType.STRING));
-    FIELDS.add(Schema.Field.nullable("nlp_date", Schema.FieldType.DATETIME));
-    FIELDS.add(Schema.Field.nullable("nlp_datetime", Schema.FieldType.DATETIME));
+    FIELDS.add(Schema.Field.nullable("nlp_date", Schema.FieldType.STRING));
+    FIELDS.add(Schema.Field.nullable("nlp_datetime", Schema.FieldType.STRING));
     FIELDS.add(Schema.Field.nullable("term_exists", Schema.FieldType.STRING));
     FIELDS.add(Schema.Field.nullable("term_temporal", Schema.FieldType.STRING));
     FIELDS.add(Schema.Field.nullable("term_modifiers", Schema.FieldType.STRING));
