@@ -4,11 +4,11 @@ import edu.uth.clamp.config.ConfigurationException;
 import edu.uth.clamp.io.DocumentIOException;
 import io.factory.IORead;
 import io.factory.IOReadFactory;
+import io.factory.IOWrite;
+import io.factory.IOWriteFactory;
 import org.apache.beam.sdk.Pipeline;
-import org.apache.beam.sdk.io.TextIO;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.ParDo;
-import org.apache.beam.sdk.transforms.ToJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,10 +26,9 @@ public class CurationNLPMain {
     clamp_str_fn.init_clamp(options);
     IORead ioRead = IOReadFactory.create(options.getInputType());
     ioRead.init(options.getInput(), options.getInputType());
-    p.apply(ioRead)
-        .apply(ParDo.of(clamp_str_fn))
-        .apply(ToJson.of())
-        .apply(TextIO.write().to(options.getOutput() + "output").withSuffix(".jsonl"));
+    IOWrite ioWrite = IOWriteFactory.create(options.getOutputType());
+    ioWrite.init(options.getOutput(), options.getOutputType());
+    p.apply(ioRead).apply(ParDo.of(clamp_str_fn)).apply(ioWrite);
 
     p.run().waitUntilFinish();
   }
