@@ -23,12 +23,13 @@ public class CurationNLPMain {
       throws ConfigurationException, DocumentIOException, IOException {
     Pipeline p = Pipeline.create(options);
     RunCLAMPFn clamp_str_fn = new RunCLAMPFn();
+    TransformNoteFn transform_fn = new TransformNoteFn();
     clamp_str_fn.init_clamp(options);
     IORead ioRead = IOReadFactory.create(options.getInputType());
     ioRead.init(options.getInput(), options.getInputType());
     IOWrite ioWrite = IOWriteFactory.create(options.getOutputType());
     ioWrite.init(options.getOutput(), options.getOutputType());
-    p.apply(ioRead).apply(ParDo.of(clamp_str_fn)).apply(ioWrite);
+    p.apply(ioRead).apply(ParDo.of(transform_fn)).apply(ioWrite);
 
     p.run().waitUntilFinish();
   }
