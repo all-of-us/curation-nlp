@@ -21,6 +21,7 @@ import org.apache.beam.sdk.values.Row;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.allofus.curation.utils.ReadSchemaFromJson;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +37,7 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
   private static final Logger log = LoggerFactory.getLogger(Processor.class);
   private static final List<DocProcessor> procList = new ArrayList<>();
   static Schema output_schema = ReadSchemaFromJson.ReadSchema("note_nlp.json");
-  private static Map<String, String> attrMap;
+  private static Map<String, String> attrMap = new HashMap<String, String>();
   File outPath;
 
   @Override
@@ -54,7 +55,7 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
     String resources_param = options.getResourcesDir();
     String resources_dir = SanitizeInput.sanitize(resources_param);
     String umlsIndexDir = "/index/umls_index";
-    String pipeline_file = "/pipeline/clamp-ner.pipeline.jar";
+    String pipeline_file = "/pipeline/clinical_pipeline.pipeline.jar";
     List<DocProcessor> pipeline;
 
     if (resources_dir.startsWith("gs")) {
@@ -122,9 +123,9 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
         for (ClampSection sec : doc.getSections()) {
           for (ClampNameEntity cne : doc.getNameEntity()) {
             Schema schema = ReadSchemaFromJson.ReadSchema("note_nlp.json");
-            String tmp = "tmp"; // getTermTemporal(doc, cne);
-            String te = "te"; // getTermExists(cne);
-            String tm = "tm"; // getTermModifiers(cne);
+            String tmp = getTermTemporal(doc, cne);
+            String te = getTermExists(cne);
+            String tm = getTermModifiers(cne);
             Row out =
                 Row.withSchema(schema)
                     .addValue(0L)
