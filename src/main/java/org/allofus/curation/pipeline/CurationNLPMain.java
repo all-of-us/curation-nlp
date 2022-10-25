@@ -7,8 +7,11 @@ import io.factory.IOReadFactory;
 import io.factory.IOWrite;
 import io.factory.IOWriteFactory;
 import org.apache.beam.sdk.Pipeline;
+import org.apache.beam.sdk.coders.CoderRegistry;
+import org.apache.beam.sdk.coders.DoubleCoder;
+import org.apache.beam.sdk.coders.VarIntCoder;
+import org.apache.beam.sdk.coders.VarLongCoder;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
-import org.apache.beam.sdk.transforms.ParDo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,14 +25,17 @@ public class CurationNLPMain {
   static void runCurationNLP(CurationNLPOptions options)
       throws ConfigurationException, DocumentIOException, IOException {
     Pipeline p = Pipeline.create(options);
-    RunCLAMPFn clamp_str_fn = new RunCLAMPFn();
-    TransformNoteFn transform_fn = new TransformNoteFn();
-    clamp_str_fn.init_clamp(options);
+    CoderRegistry cr = p.getCoderRegistry();
+    RunCLAMPFn runCLAMPFn = new RunCLAMPFn();
+    runCLAMPFn.init_clamp(options);
+    cr.registerCoderForClass(Integer.class, VarIntCoder.of());
+    cr.registerCoderForClass(Long.class, VarLongCoder.of());
+    cr.registerCoderForClass(Float.class, DoubleCoder.of());
     IORead ioRead = IOReadFactory.create(options.getInputType());
     ioRead.init(options.getInput(), options.getInputType());
     IOWrite ioWrite = IOWriteFactory.create(options.getOutputType());
     ioWrite.init(options.getOutput(), options.getOutputType());
-    p.apply(ioRead).apply(ParDo.of(transform_fn)).apply(ioWrite);
+    p.apply(ioRead).apply(runCLAMPFn).apply(ioWrite);
 
     p.run().waitUntilFinish();
   }
