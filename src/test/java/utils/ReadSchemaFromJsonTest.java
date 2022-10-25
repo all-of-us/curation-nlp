@@ -4,6 +4,10 @@ import junit.framework.TestCase;
 import org.apache.beam.sdk.schemas.Schema;
 import org.junit.Rule;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -11,6 +15,10 @@ import static com.shazam.shazamcrest.MatcherAssert.assertThat;
 import static com.shazam.shazamcrest.matcher.Matchers.sameBeanAs;
 
 public class ReadSchemaFromJsonTest extends TestCase {
+
+  @Rule String project_home = System.getProperty("user.dir");
+  @Rule String resources_dir = project_home + "/src/main/resources";
+  @Rule String schema_path = resources_dir + "/schemas/cdm/clinical/";
 
   @Rule
   static Schema getNoteSchema() {
@@ -59,10 +67,28 @@ public class ReadSchemaFromJsonTest extends TestCase {
         actual_schema, sameBeanAs(expected_schema).ignoring("description").ignoring("options"));
   }
 
-  public void testVerifyNoteNLPSchema() {
+  public void testNoteNLPString() {
     Schema expected_schema = getNoteNLPSchema();
     Schema actual_schema = ReadSchemaFromJson.ReadSchema("note_nlp.json");
     assertThat(
         actual_schema, sameBeanAs(expected_schema).ignoring("description").ignoring("options"));
+  }
+
+  public void testNoteString() throws IOException {
+    String expected_string =
+        new String(
+            Files.readAllBytes(Paths.get(schema_path + "note.json")), StandardCharsets.UTF_8);
+    String actual_string = ReadSchemaFromJson.getJsonString("note.json");
+    assertThat(
+        actual_string, sameBeanAs(expected_string).ignoring("description").ignoring("options"));
+  }
+
+  public void testVerifyNoteNLPSchema() throws IOException {
+    String expected_string =
+        new String(
+            Files.readAllBytes(Paths.get(schema_path + "note_nlp.json")), StandardCharsets.UTF_8);
+    String actual_string = ReadSchemaFromJson.getJsonString("note_nlp.json");
+    assertThat(
+        actual_string, sameBeanAs(expected_string).ignoring("description").ignoring("options"));
   }
 }
