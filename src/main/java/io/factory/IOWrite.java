@@ -17,7 +17,7 @@ public abstract class IOWrite extends PTransform<PCollection<Row>, PDone> {
     if ("bigquery".equalsIgnoreCase(output_type)) {
       output_sink = output_dir;
     } else {
-      output_sink = output_dir;
+      output_sink = output_dir + "output";
       output_ext = output_type;
     }
   }

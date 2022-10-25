@@ -12,6 +12,6 @@ public class JSONLWrite extends IOWrite {
   public PDone expand(PCollection<Row> input) {
     return input
         .apply(ToJson.of())
-        .apply(TextIO.write().to(output_sink).withSuffix("." + output_ext));
+        .apply(TextIO.write().to(output_sink).withSuffix("." + output_ext).withoutSharding());
   }
 }
