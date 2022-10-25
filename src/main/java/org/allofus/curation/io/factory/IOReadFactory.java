@@ -1,8 +1,8 @@
-package io.factory;
+package org.allofus.curation.io.factory;
 
-import io.bigquery.BigQueryRead;
-import io.csv.CSVRead;
-import io.jsonl.JSONLRead;
+import org.allofus.curation.io.bigquery.BigQueryRead;
+import org.allofus.curation.io.csv.CSVRead;
+import org.allofus.curation.io.jsonl.JSONLRead;
 
 public class IOReadFactory {
   public static IORead create(String input_type) {

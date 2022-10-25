@@ -1,7 +1,7 @@
-package io.bigquery;
+package org.allofus.curation.io.bigquery;
 
 import com.google.api.services.bigquery.model.TableRow;
-import io.factory.IORead;
+import org.allofus.curation.io.factory.IORead;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.ParDo;

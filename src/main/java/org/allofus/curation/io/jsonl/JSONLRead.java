@@ -1,8 +1,8 @@
-package io.jsonl;
+package org.allofus.curation.io.jsonl;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import io.factory.IORead;
+import org.allofus.curation.io.factory.IORead;
 import org.apache.beam.sdk.io.FileIO;
 import org.apache.beam.sdk.schemas.SchemaCoder;
 import org.apache.beam.sdk.transforms.DoFn;

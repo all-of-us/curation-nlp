@@ -1,6 +1,6 @@
-package io.csv;
+package org.allofus.curation.io.csv;
 
-import io.factory.IORead;
+import org.allofus.curation.io.factory.IORead;
 import org.apache.beam.sdk.io.FileIO;
 import org.apache.beam.sdk.schemas.SchemaCoder;
 import org.apache.beam.sdk.transforms.DoFn;

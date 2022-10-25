@@ -1,8 +1,8 @@
-package io.factory;
+package org.allofus.curation.io.factory;
 
-import io.bigquery.BigQueryWrite;
-import io.csv.CSVWrite;
-import io.jsonl.JSONLWrite;
+import org.allofus.curation.io.bigquery.BigQueryWrite;
+import org.allofus.curation.io.csv.CSVWrite;
+import org.allofus.curation.io.jsonl.JSONLWrite;
 
 public class IOWriteFactory {
   public static IOWrite create(String output_type) {

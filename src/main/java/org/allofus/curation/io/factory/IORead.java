@@ -1,11 +1,11 @@
-package io.factory;
+package org.allofus.curation.io.factory;
 
 import org.apache.beam.sdk.schemas.Schema;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.Row;
-import utils.ReadSchemaFromJson;
+import org.allofus.curation.utils.ReadSchemaFromJson;
 
 public abstract class IORead extends PTransform<PBegin, PCollection<Row>> {
 

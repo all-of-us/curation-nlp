@@ -1,6 +1,7 @@
-package utils;
+package org.allofus.curation.utils;
 
 import junit.framework.TestCase;
+import org.allofus.curation.utils.ReadSchemaFromJson;
 import org.apache.beam.sdk.schemas.Schema;
 import org.junit.Rule;
 

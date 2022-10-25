@@ -1,6 +1,6 @@
-package io.csv;
+package org.allofus.curation.io.csv;
 
-import io.factory.IOWrite;
+import org.allofus.curation.io.factory.IOWrite;
 import org.apache.beam.sdk.io.TextIO;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.ParDo;

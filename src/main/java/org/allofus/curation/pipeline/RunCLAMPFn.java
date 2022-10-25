@@ -18,7 +18,7 @@ import org.apache.beam.sdk.values.Row;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import utils.ReadSchemaFromJson;
+import org.allofus.curation.utils.ReadSchemaFromJson;
 
 import java.io.File;
 import java.io.IOException;

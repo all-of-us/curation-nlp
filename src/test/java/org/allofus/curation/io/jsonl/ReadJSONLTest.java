@@ -1,7 +1,7 @@
-package io.jsonl;
+package org.allofus.curation.io.jsonl;
 
-import io.factory.IORead;
-import io.factory.IOReadFactory;
+import org.allofus.curation.io.factory.IORead;
+import org.allofus.curation.io.factory.IOReadFactory;
 import junit.framework.TestCase;
 import org.apache.beam.sdk.coders.CoderRegistry;
 import org.apache.beam.sdk.coders.DoubleCoder;
@@ -12,7 +12,7 @@ import org.apache.beam.sdk.testing.PAssert;
 import org.apache.beam.sdk.testing.TestPipeline;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.Row;
-import utils.ReadSchemaFromJson;
+import org.allofus.curation.utils.ReadSchemaFromJson;
 
 public class ReadJSONLTest extends TestCase {
 

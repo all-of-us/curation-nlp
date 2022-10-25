@@ -1,9 +1,9 @@
-package io.bigquery;
+package org.allofus.curation.io.bigquery;
 
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.BigQueryOptions;
-import io.factory.IOWrite;
+import org.allofus.curation.io.factory.IOWrite;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.ParDo;
@@ -11,7 +11,7 @@ import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PDone;
 import org.apache.beam.sdk.values.Row;
 import org.joda.time.Duration;
-import utils.ReadSchemaFromJson;
+import org.allofus.curation.utils.ReadSchemaFromJson;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

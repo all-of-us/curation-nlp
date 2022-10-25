@@ -1,4 +1,4 @@
-package pipeline;
+package org.allofus.curation.pipeline;
 
 import org.apache.beam.sdk.schemas.Schema;
 import org.apache.beam.sdk.schemas.SchemaCoder;
@@ -7,7 +7,7 @@ import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.Row;
-import utils.ReadSchemaFromJson;
+import org.allofus.curation.utils.ReadSchemaFromJson;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

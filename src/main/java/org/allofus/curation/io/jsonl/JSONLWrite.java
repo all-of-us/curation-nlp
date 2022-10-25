@@ -1,6 +1,6 @@
-package io.jsonl;
+package org.allofus.curation.io.jsonl;
 
-import io.factory.IOWrite;
+import org.allofus.curation.io.factory.IOWrite;
 import org.apache.beam.sdk.io.TextIO;
 import org.apache.beam.sdk.transforms.ToJson;
 import org.apache.beam.sdk.values.PCollection;

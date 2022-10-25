@@ -1,4 +1,4 @@
-package utils;
+package org.allofus.curation.utils;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
