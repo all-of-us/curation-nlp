@@ -1,5 +1,6 @@
 package io.factory;
 
+import io.bigquery.BigQueryRead;
 import io.csv.CSVRead;
 import io.jsonl.JSONLRead;
 
@@ -9,8 +10,9 @@ public class IOReadFactory {
       return new CSVRead();
     } else if ("jsonl".equalsIgnoreCase(input_type)) {
       return new JSONLRead();
-    } // else if ("bigquery".equalsIgnoreCase(input_type)) {
-    //  return new BigQueryRead();
+    } else if ("bigquery".equalsIgnoreCase(input_type)) {
+      return new BigQueryRead();
+    }
     return null;
   }
 }
