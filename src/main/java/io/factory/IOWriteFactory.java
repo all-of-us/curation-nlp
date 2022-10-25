@@ -1,5 +1,6 @@
 package io.factory;
 
+import io.bigquery.BigQueryWrite;
 import io.csv.CSVWrite;
 import io.jsonl.JSONLWrite;
 
@@ -9,8 +10,9 @@ public class IOWriteFactory {
       return new CSVWrite();
     } else if ("jsonl".equalsIgnoreCase(output_type)) {
       return new JSONLWrite();
-    } // else if ("bigquery".equalsIgnoreCase(input_type)) {
-    //  return new BigQueryWrite();
+    } else if ("bigquery".equalsIgnoreCase(output_type)) {
+      return new BigQueryWrite();
+    }
     return null;
   }
 }
