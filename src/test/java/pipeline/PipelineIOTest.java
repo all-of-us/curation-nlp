@@ -12,14 +12,31 @@ import org.apache.beam.sdk.coders.DoubleCoder;
 import org.apache.beam.sdk.coders.VarIntCoder;
 import org.apache.beam.sdk.coders.VarLongCoder;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashSet;
 
 public class PipelineIOTest extends TestCase {
 
-  private String args;
+  String ext = "csv";
+  String home_dir = System.getProperty("user.dir");
+  String data_path = home_dir + "/src/test/resources/data";
+  String resources_path = home_dir + "resources";
+
+  String[] args =
+      new String[] {
+        "--input=" + data_path + "/input/",
+        "--output=" + data_path + "/output/",
+        "--resourcesDir=" + resources_path,
+        "--inputType=jsonl",
+        "--outputType=" + ext,
+      };
   CurationNLPOptions options =
       PipelineOptionsFactory.fromArgs(args).withValidation().as(CurationNLPOptions.class);
 
-  public void testPipelineIO() {
+  public void testPipelineIO() throws IOException {
     Pipeline p = Pipeline.create(options);
     CoderRegistry cr = p.getCoderRegistry();
     cr.registerCoderForClass(Integer.class, VarIntCoder.of());
@@ -32,5 +49,11 @@ public class PipelineIOTest extends TestCase {
     p.apply(ioRead).apply(new IOFn()).apply(ioWrite);
 
     p.run().waitUntilFinish();
+
+    File actual = new File(data_path + "/output/output." + ext);
+    File expected = new File(data_path + "/expected/note_nlp." + ext);
+    HashSet<String> actual_set = new HashSet<String>(FileUtils.readLines(actual));
+    HashSet<String> expected_set = new HashSet<String>(FileUtils.readLines(expected));
+    assertTrue(actual_set.equals(expected_set));
   }
 }

@@ -11,6 +11,7 @@ import utils.ReadSchemaFromJson;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 public class IOFn extends PTransform<PCollection<Row>, PCollection<Row>> {
@@ -30,7 +31,7 @@ public class IOFn extends PTransform<PCollection<Row>, PCollection<Row>> {
     public void processElement(@Element Row input, OutputReceiver<Row> receiver) {
       DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
       DateFormat datetimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-      Date date = new Date();
+      Date date = new Date(2022-1900, Calendar.NOVEMBER,10,10,10,10);
       Row output =
           Row.withSchema(output_schema)
               .addValue(0L)
