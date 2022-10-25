@@ -24,17 +24,22 @@ public class CurationNLPMain {
 
   static void runCurationNLP(CurationNLPOptions options)
       throws ConfigurationException, DocumentIOException, IOException {
+
     Pipeline p = Pipeline.create(options);
+
     CoderRegistry cr = p.getCoderRegistry();
-    RunCLAMPFn runCLAMPFn = new RunCLAMPFn();
-    runCLAMPFn.init_clamp(options);
     cr.registerCoderForClass(Integer.class, VarIntCoder.of());
     cr.registerCoderForClass(Long.class, VarLongCoder.of());
     cr.registerCoderForClass(Float.class, DoubleCoder.of());
+
+    RunCLAMPFn runCLAMPFn = new RunCLAMPFn();
+    runCLAMPFn.init_clamp(options);
+
     IORead ioRead = IOReadFactory.create(options.getInputType());
     ioRead.init(options.getInput(), options.getInputType());
     IOWrite ioWrite = IOWriteFactory.create(options.getOutputType());
     ioWrite.init(options.getOutput(), options.getOutputType());
+
     p.apply(ioRead).apply(runCLAMPFn).apply(ioWrite);
 
     p.run().waitUntilFinish();

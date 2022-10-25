@@ -3,6 +3,10 @@ package io.csv;
 import io.factory.IORead;
 import io.factory.IOReadFactory;
 import junit.framework.TestCase;
+import org.apache.beam.sdk.coders.CoderRegistry;
+import org.apache.beam.sdk.coders.DoubleCoder;
+import org.apache.beam.sdk.coders.VarIntCoder;
+import org.apache.beam.sdk.coders.VarLongCoder;
 import org.apache.beam.sdk.schemas.Schema;
 import org.apache.beam.sdk.testing.PAssert;
 import org.apache.beam.sdk.testing.TestPipeline;
@@ -17,14 +21,19 @@ public class ReadCSVTest extends TestCase {
 
     String home_dir = System.getProperty("user.dir");
     String test_dir = home_dir + "/src/test";
-    String data_dir = test_dir + "/resources/data/";
+    String data_dir = test_dir + "/resources/data/input/";
     String input_type = "csv";
     Schema note_schema = ReadSchemaFromJson.ReadSchema("note.json");
+
+    CoderRegistry cr = p.getCoderRegistry();
+    cr.registerCoderForClass(Integer.class, VarIntCoder.of());
+    cr.registerCoderForClass(Long.class, VarLongCoder.of());
+    cr.registerCoderForClass(Float.class, DoubleCoder.of());
 
     IORead ioRead = IOReadFactory.create(input_type);
     ioRead.init(data_dir, input_type);
 
-    PCollection<org.apache.beam.sdk.values.Row> actual = p.apply(ioRead);
+    PCollection<org.apache.beam.sdk.values.Row> actual = p.apply(ioRead).setRowSchema(note_schema);
 
     Row row_1 =
         Row.withSchema(note_schema)

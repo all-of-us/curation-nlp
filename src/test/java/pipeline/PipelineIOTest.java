@@ -37,23 +37,29 @@ public class PipelineIOTest extends TestCase {
       PipelineOptionsFactory.fromArgs(args).withValidation().as(CurationNLPOptions.class);
 
   public void testPipelineIO() throws IOException {
+
     Pipeline p = Pipeline.create(options);
+
     CoderRegistry cr = p.getCoderRegistry();
     cr.registerCoderForClass(Integer.class, VarIntCoder.of());
     cr.registerCoderForClass(Long.class, VarLongCoder.of());
     cr.registerCoderForClass(Float.class, DoubleCoder.of());
+
     IORead ioRead = IOReadFactory.create(options.getInputType());
     ioRead.init(options.getInput(), options.getInputType());
     IOWrite ioWrite = IOWriteFactory.create(options.getOutputType());
     ioWrite.init(options.getOutput(), options.getOutputType());
+
     p.apply(ioRead).apply(new IOFn()).apply(ioWrite);
 
     p.run().waitUntilFinish();
 
     File actual = new File(data_path + "/output/output." + ext);
     File expected = new File(data_path + "/expected/note_nlp." + ext);
+
     HashSet<String> actual_set = new HashSet<String>(FileUtils.readLines(actual));
     HashSet<String> expected_set = new HashSet<String>(FileUtils.readLines(expected));
+
     assertTrue(actual_set.equals(expected_set));
   }
 }
