@@ -16,7 +16,7 @@ public abstract class IORead extends PTransform<PBegin, PCollection<Row>> {
     if ("bigquery".equalsIgnoreCase(input_type)) {
       input_pattern = input_dir;
     } else {
-      input_pattern = input_dir + "*" + input_type;
+      input_pattern = input_dir + "/*" + input_type;
     }
   }
 

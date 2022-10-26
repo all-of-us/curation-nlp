@@ -1,11 +1,11 @@
 package org.allofus.curation.utils;
 
-public class Constants {
+public final class Constants {
   public static class Env {
-    public static final String PROJECT_ID = System.getProperty("PROJECT_ID");
+    public static final String PROJECT_ID = System.getenv("PROJECT_ID");
     public static final String GOOGLE_APPLICATION_CREDENTIALS =
-        System.getProperty("GOOGLE_APPLICATION_CREDENTIALS");
-    public static final String TEST_BUCKET = System.getProperty("TEST_BUCKET");
+        System.getenv("GOOGLE_APPLICATION_CREDENTIALS");
+    public static final String TEST_BUCKET = System.getenv("TEST_BUCKET");
   }
 
   public static class ProjectPaths {
