@@ -17,10 +17,11 @@ public class StorageTmpTest extends TestCase {
   public void testStoreTmp() throws IOException {
     String resources_dir = "gs://" + Constants.Env.TEST_BUCKET + "/resources";
     String resources_prefix = resources_dir.substring(resources_dir.lastIndexOf("/") + 1);
-    String pipeline_file = resources_prefix + "/pipeline/note.jsonl";
+    String test_filename = "note.jsonl";
+    String pipeline_file = resources_prefix + "/pipeline/" + test_filename;
     String umls_dir = resources_prefix + "/index/umls_index";
     String testFolderPath = Constants.ProjectPaths.TEST_INPUT;
-    String testFilePath = testFolderPath + "/note.jsonl";
+    String testFilePath = testFolderPath + "/" + test_filename;
     StorageTmp stmp = new StorageTmp(resources_dir);
     String tmp_file = stmp.StoreTmpFile(pipeline_file);
 
