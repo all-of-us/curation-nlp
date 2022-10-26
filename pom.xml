@@ -30,8 +30,11 @@
         <artifact-registry.version>2.1.5</artifact-registry.version>
         <shazamcrest.version>0.11</shazamcrest.version>
         <gson.version>1.1.1</gson.version>
-        <bigquery.version>2.16.1</bigquery.version>
-        <bigquerystorage.version>2.22.0</bigquerystorage.version>
+        <bigquery.version>2.17.1</bigquery.version>
+        <bigquerystorage.version>2.23.1</bigquerystorage.version>
+        <google-api.version>1.35.2</google-api.version>
+        <guava.version>31.1-jre</guava.version>
+        <google-storage.version>2.9.3</google-storage.version>
     </properties>
 
     <build>
@@ -321,6 +324,21 @@
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
             <version>${gson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.api-client</groupId>
+            <artifactId>google-api-client</artifactId>
+            <version>${google-api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-storage</artifactId>
+            <version>${google-storage.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
         </dependency>
         <dependency>
             <groupId>edu.uth.clamp</groupId>
