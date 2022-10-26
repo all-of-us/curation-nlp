@@ -8,6 +8,8 @@ import edu.uth.clamp.nlp.encoding.MaxMatchingUmlsEncoderCovid;
 import edu.uth.clamp.nlp.encoding.RxNormEncoderUIMA;
 import edu.uth.clamp.nlp.structure.*;
 import edu.uth.clamp.nlp.uima.UmlsEncoderUIMA;
+import org.allofus.curation.utils.ReadSchemaFromJson;
+import org.allofus.curation.utils.StorageTmp;
 import org.apache.beam.sdk.schemas.Schema;
 import org.apache.beam.sdk.schemas.SchemaCoder;
 import org.apache.beam.sdk.transforms.DoFn;
@@ -18,7 +20,6 @@ import org.apache.beam.sdk.values.Row;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.allofus.curation.utils.ReadSchemaFromJson;
 
 import java.io.File;
 import java.io.IOException;
@@ -53,6 +54,16 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
     String umlsIndexDir = "/index/umls_index";
     String pipeline_file = "/pipeline/clamp-ner.pipeline.jar";
     List<DocProcessor> pipeline;
+
+    if (resources_dir.startsWith("gs")) {
+      StorageTmp stmp = new StorageTmp(resources_dir);
+      umlsIndexDir = stmp.StoreTmpDir(umlsIndexDir.substring(1));
+      pipeline_file = stmp.StoreTmpFile(pipeline_file.substring(1));
+    } else {
+      umlsIndexDir = resources_dir + umlsIndexDir;
+      pipeline_file = resources_dir + pipeline_file;
+    }
+
     File umlsIndex = new File(umlsIndexDir);
     File pipelineJar = new File(pipeline_file);
 
