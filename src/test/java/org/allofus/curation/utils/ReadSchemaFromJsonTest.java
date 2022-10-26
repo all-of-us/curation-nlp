@@ -1,7 +1,6 @@
 package org.allofus.curation.utils;
 
 import junit.framework.TestCase;
-import org.allofus.curation.utils.ReadSchemaFromJson;
 import org.apache.beam.sdk.schemas.Schema;
 import org.junit.Rule;
 
@@ -14,12 +13,9 @@ import java.util.List;
 
 import static com.shazam.shazamcrest.MatcherAssert.assertThat;
 import static com.shazam.shazamcrest.matcher.Matchers.sameBeanAs;
+import static org.allofus.curation.utils.Constants.ProjectPaths.SCHEMA_CLINICAL;
 
 public class ReadSchemaFromJsonTest extends TestCase {
-
-  @Rule String project_home = System.getProperty("user.dir");
-  @Rule String resources_dir = project_home + "/src/main/resources";
-  @Rule String schema_path = resources_dir + "/schemas/cdm/clinical/";
 
   @Rule
   static Schema getNoteSchema() {
@@ -78,7 +74,8 @@ public class ReadSchemaFromJsonTest extends TestCase {
   public void testNoteString() throws IOException {
     String expected_string =
         new String(
-            Files.readAllBytes(Paths.get(schema_path + "note.json")), StandardCharsets.UTF_8);
+            Files.readAllBytes(Paths.get(SCHEMA_CLINICAL + "/" + "note.json")),
+            StandardCharsets.UTF_8);
     String actual_string = ReadSchemaFromJson.getJsonString("note.json");
     assertThat(
         actual_string, sameBeanAs(expected_string).ignoring("description").ignoring("options"));
@@ -87,7 +84,8 @@ public class ReadSchemaFromJsonTest extends TestCase {
   public void testVerifyNoteNLPSchema() throws IOException {
     String expected_string =
         new String(
-            Files.readAllBytes(Paths.get(schema_path + "note_nlp.json")), StandardCharsets.UTF_8);
+            Files.readAllBytes(Paths.get(SCHEMA_CLINICAL + "/" + "note_nlp.json")),
+            StandardCharsets.UTF_8);
     String actual_string = ReadSchemaFromJson.getJsonString("note_nlp.json");
     assertThat(
         actual_string, sameBeanAs(expected_string).ignoring("description").ignoring("options"));

@@ -1,10 +1,11 @@
 package org.allofus.curation.pipeline;
 
+import junit.framework.TestCase;
 import org.allofus.curation.io.factory.IORead;
 import org.allofus.curation.io.factory.IOReadFactory;
 import org.allofus.curation.io.factory.IOWrite;
 import org.allofus.curation.io.factory.IOWriteFactory;
-import junit.framework.TestCase;
+import org.allofus.curation.utils.Constants.ProjectPaths;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.CoderRegistry;
 import org.apache.beam.sdk.coders.DoubleCoder;
@@ -19,23 +20,19 @@ import java.util.HashSet;
 
 public class PipelineIOTest extends TestCase {
 
-  String ext = "csv";
-  String home_dir = System.getProperty("user.dir");
-  String data_path = home_dir + "/src/test/resources/data";
-  String resources_path = home_dir + "resources";
-
-  String[] args =
-      new String[] {
-        "--input=" + data_path + "/input/",
-        "--output=" + data_path + "/output/",
-        "--resourcesDir=" + resources_path,
-        "--inputType=jsonl",
-        "--outputType=" + ext,
-      };
-  CurationNLPOptions options =
-      PipelineOptionsFactory.fromArgs(args).withValidation().as(CurationNLPOptions.class);
-
   public void testPipelineIO() throws IOException {
+    String ext = "csv";
+
+    String[] args =
+        new String[] {
+          "--input=" + ProjectPaths.TEST_INPUT + "/",
+          "--output=" + ProjectPaths.TEST_OUTPUT + "/",
+          "--resourcesDir=" + ProjectPaths.CLAMP_RESOURCES,
+          "--inputType=jsonl",
+          "--outputType=" + ext,
+        };
+    CurationNLPOptions options =
+        PipelineOptionsFactory.fromArgs(args).withValidation().as(CurationNLPOptions.class);
 
     Pipeline p = Pipeline.create(options);
 
@@ -53,12 +50,12 @@ public class PipelineIOTest extends TestCase {
 
     p.run().waitUntilFinish();
 
-    File actual = new File(data_path + "/output/output." + ext);
-    File expected = new File(data_path + "/expected/note_nlp." + ext);
+    File actual = new File(ProjectPaths.TEST_OUTPUT + "/output." + ext);
+    File expected = new File(ProjectPaths.TEST_DATA + "/expected/note_nlp." + ext);
 
     HashSet<String> actual_set = new HashSet<String>(FileUtils.readLines(actual));
     HashSet<String> expected_set = new HashSet<String>(FileUtils.readLines(expected));
 
-    assertTrue(actual_set.equals(expected_set));
+    assertEquals(actual_set, expected_set);
   }
 }

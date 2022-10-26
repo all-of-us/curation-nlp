@@ -50,8 +50,8 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
     String outDir = options.getOutput();
     this.outPath = new File(outDir);
     String resources_dir = options.getResourcesDir();
-    String umlsIndexDir = resources_dir + "/index/umls_index";
-    String pipeline_file = resources_dir + "/pipeline/clamp-ner.pipeline.jar";
+    String umlsIndexDir = "/index/umls_index";
+    String pipeline_file = "/pipeline/clamp-ner.pipeline.jar";
     List<DocProcessor> pipeline;
     File umlsIndex = new File(umlsIndexDir);
     File pipelineJar = new File(pipeline_file);

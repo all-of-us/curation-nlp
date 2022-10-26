@@ -12,16 +12,14 @@ import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ReadSchemaFromJson {
+import static org.allofus.curation.utils.Constants.ProjectPaths.SCHEMA_CLINICAL;
 
-  static String project_home = System.getProperty("user.dir");
-  static String resources_dir = project_home + "/src/main/resources";
-  static String schema_path = resources_dir + "/schemas/cdm/clinical/";
+public class ReadSchemaFromJson {
 
   public static Schema ReadSchema(String file_path) {
     List<Schema.Field> fields = new LinkedList<>();
     try {
-      byte[] encoded = Files.readAllBytes(Paths.get(schema_path + file_path));
+      byte[] encoded = Files.readAllBytes(Paths.get(SCHEMA_CLINICAL + "/" + file_path));
       String file_string = new String(encoded, StandardCharsets.UTF_8);
       JsonArray schema_json_array = JsonParser.parseString(file_string).getAsJsonArray();
 
@@ -52,7 +50,7 @@ public class ReadSchemaFromJson {
   public static String getJsonString(String file_path) {
 
     try {
-      byte[] encoded = Files.readAllBytes(Paths.get(schema_path + file_path));
+      byte[] encoded = Files.readAllBytes(Paths.get(SCHEMA_CLINICAL + "/" + file_path));
       return new String(encoded, StandardCharsets.UTF_8);
     } catch (IOException e) {
       System.out.println(e.getMessage() + ", could not read schema for file " + file_path);

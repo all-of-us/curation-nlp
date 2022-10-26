@@ -1,8 +1,9 @@
 package org.allofus.curation.io.csv;
 
+import junit.framework.TestCase;
 import org.allofus.curation.io.factory.IORead;
 import org.allofus.curation.io.factory.IOReadFactory;
-import junit.framework.TestCase;
+import org.allofus.curation.utils.ReadSchemaFromJson;
 import org.apache.beam.sdk.coders.CoderRegistry;
 import org.apache.beam.sdk.coders.DoubleCoder;
 import org.apache.beam.sdk.coders.VarIntCoder;
@@ -12,16 +13,14 @@ import org.apache.beam.sdk.testing.PAssert;
 import org.apache.beam.sdk.testing.TestPipeline;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.Row;
-import org.allofus.curation.utils.ReadSchemaFromJson;
+
+import static org.allofus.curation.utils.Constants.ProjectPaths.TEST_INPUT;
 
 public class ReadCSVTest extends TestCase {
 
   public void testReadCSV() {
     TestPipeline p = TestPipeline.create().enableAbandonedNodeEnforcement(false);
 
-    String home_dir = System.getProperty("user.dir");
-    String test_dir = home_dir + "/src/test";
-    String data_dir = test_dir + "/resources/data/input/";
     String input_type = "csv";
     Schema note_schema = ReadSchemaFromJson.ReadSchema("note.json");
 
@@ -31,7 +30,7 @@ public class ReadCSVTest extends TestCase {
     cr.registerCoderForClass(Float.class, DoubleCoder.of());
 
     IORead ioRead = IOReadFactory.create(input_type);
-    ioRead.init(data_dir, input_type);
+    ioRead.init(TEST_INPUT, input_type);
 
     PCollection<org.apache.beam.sdk.values.Row> actual = p.apply(ioRead).setRowSchema(note_schema);
 
