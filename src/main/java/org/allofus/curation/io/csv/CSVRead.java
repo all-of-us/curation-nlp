@@ -11,6 +11,7 @@ import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.Row;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang.math.NumberUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,8 +19,6 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.channels.Channels;
 import java.nio.charset.StandardCharsets;
-
-import utils.GetLongValue;
 
 public class CSVRead extends IORead {
 
@@ -54,19 +53,19 @@ public class CSVRead extends IORead {
     public void processElement(@Element CSVRecord element, OutputReceiver<Row> receiver) {
       Row output =
           Row.withSchema(input_schema)
-              .addValue(GetLongValue.of(element.get(0)))
-              .addValue(GetLongValue.of(element.get(1)))
+              .addValue(NumberUtils.toLong(element.get(0)))
+              .addValue(NumberUtils.toLong(element.get(1)))
               .addValue(element.get(2))
               .addValue(element.get(3))
-              .addValue(GetLongValue.of(element.get(4)))
-              .addValue(GetLongValue.of(element.get(5)))
+              .addValue(NumberUtils.toLong(element.get(4)))
+              .addValue(NumberUtils.toLong(element.get(5)))
               .addValue(element.get(6))
               .addValue(element.get(7))
-              .addValue(GetLongValue.of(element.get(8)))
-              .addValue(GetLongValue.of(element.get(9)))
-              .addValue(GetLongValue.of(element.get(10)))
-              .addValue(GetLongValue.of(element.get(11)))
-              .addValue(GetLongValue.of(element.get(12)))
+              .addValue(NumberUtils.toLong(element.get(8)))
+              .addValue(NumberUtils.toLong(element.get(9)))
+              .addValue(NumberUtils.toLong(element.get(10)))
+              .addValue(NumberUtils.toLong(element.get(11)))
+              .addValue(NumberUtils.toLong(element.get(12)))
               .addValue(element.get(13))
               .build();
       receiver.output(output);
