@@ -1,9 +1,8 @@
 package org.allofus.curation.utils;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.apache.beam.sdk.schemas.Schema;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -21,15 +20,15 @@ public class ReadSchemaFromJson {
     try {
       byte[] encoded = Files.readAllBytes(Paths.get(SCHEMA_CLINICAL + "/" + file_path));
       String file_string = new String(encoded, StandardCharsets.UTF_8);
-      JsonArray schema_json_array = JsonParser.parseString(file_string).getAsJsonArray();
+      JSONArray schema_json_array = new JSONArray(file_string);
 
       for (Object schema_json_field : schema_json_array) {
-        JsonObject field = (JsonObject) schema_json_field;
+        JSONObject field = (JSONObject) schema_json_field;
 
-        String name = field.get("name").getAsString();
-        String type = field.get("type").getAsString();
+        String name = field.optString("name");
+        String type = field.optString("type");
         Schema.FieldType datatype;
-        switch (type) {
+        switch (type.toLowerCase()) {
           case "integer":
             datatype = Schema.FieldType.INT64;
             break;
