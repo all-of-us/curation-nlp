@@ -29,8 +29,7 @@ public class StorageTmp {
             .setProjectId(PROJECT_ID)
             .setCredentials(
                 GoogleCredentials.fromStream(
-                    Files.newInputStream(
-                        Paths.get(GOOGLE_APPLICATION_CREDENTIALS))))
+                    Files.newInputStream(Paths.get(GOOGLE_APPLICATION_CREDENTIALS))))
             .build()
             .getService();
   }

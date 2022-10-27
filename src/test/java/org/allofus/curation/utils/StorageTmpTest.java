@@ -14,22 +14,34 @@ import java.util.stream.Stream;
 
 public class StorageTmpTest extends TestCase {
 
-  public void testStoreTmp() throws IOException {
+  StorageTmp stmp;
+  String pipeline_file;
+  String umls_dir;
+  String testFolderPath;
+  String testFilePath;
+
+  public void setUp() throws IOException {
     String resources_dir = "gs://" + Constants.Env.TEST_BUCKET + "/resources";
     String resources_prefix = resources_dir.substring(resources_dir.lastIndexOf("/") + 1);
     String test_filename = "note.jsonl";
-    String pipeline_file = resources_prefix + "/pipeline/" + test_filename;
-    String umls_dir = resources_prefix + "/index/umls_index";
-    String testFolderPath = Constants.ProjectPaths.TEST_INPUT;
-    String testFilePath = testFolderPath + "/" + test_filename;
-    StorageTmp stmp = new StorageTmp(resources_dir);
+    pipeline_file = resources_prefix + "/pipeline/" + test_filename;
+    umls_dir = resources_prefix + "/index/umls_index";
+    testFolderPath = Constants.ProjectPaths.TEST_INPUT;
+    testFilePath = testFolderPath + "/" + test_filename;
+
+    stmp = new StorageTmp(resources_dir);
+  }
+
+  public void testStoreTmpFile() throws IOException {
     String tmp_file = stmp.StoreTmpFile(pipeline_file);
 
     HashSet<String> actual_set = new HashSet<String>(FileUtils.readLines(new File(tmp_file)));
     HashSet<String> expected_set = new HashSet<String>(FileUtils.readLines(new File(testFilePath)));
 
     assertEquals(expected_set, actual_set);
+  }
 
+  public void testStoreTmpFolder() throws IOException {
     String tmp_dir = stmp.StoreTmpDir(umls_dir);
 
     HashSet<String> expected_dir_set;
