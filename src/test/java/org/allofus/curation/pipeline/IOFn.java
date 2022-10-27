@@ -1,5 +1,6 @@
 package org.allofus.curation.pipeline;
 
+import org.allofus.curation.utils.ReadSchemaFromJson;
 import org.apache.beam.sdk.schemas.Schema;
 import org.apache.beam.sdk.schemas.SchemaCoder;
 import org.apache.beam.sdk.transforms.DoFn;
@@ -7,7 +8,6 @@ import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.Row;
-import org.allofus.curation.utils.ReadSchemaFromJson;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -31,7 +31,7 @@ public class IOFn extends PTransform<PCollection<Row>, PCollection<Row>> {
     public void processElement(@Element Row input, OutputReceiver<Row> receiver) {
       DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
       DateFormat datetimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-      Date date = new Date(2022-1900, Calendar.NOVEMBER,10,10,10,10);
+      Date date = new Date(2022 - 1900, Calendar.NOVEMBER, 10, 10, 10, 10);
       Row output =
           Row.withSchema(output_schema)
               .addValue(0L)

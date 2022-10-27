@@ -1,11 +1,12 @@
 package org.allofus.curation.io.factory;
 
+import org.allofus.curation.utils.ReadSchemaFromJson;
+import org.allofus.curation.utils.SanitizeInput;
 import org.apache.beam.sdk.schemas.Schema;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.Row;
-import org.allofus.curation.utils.ReadSchemaFromJson;
 
 public abstract class IORead extends PTransform<PBegin, PCollection<Row>> {
 
@@ -13,6 +14,7 @@ public abstract class IORead extends PTransform<PBegin, PCollection<Row>> {
   public String input_pattern;
 
   public void init(String input_dir, String input_type) {
+    input_dir = SanitizeInput.sanitize(input_dir);
     if ("bigquery".equalsIgnoreCase(input_type)) {
       input_pattern = input_dir;
     } else {
