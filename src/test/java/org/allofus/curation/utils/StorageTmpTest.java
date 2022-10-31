@@ -22,10 +22,9 @@ public class StorageTmpTest extends TestCase {
 
   public void setUp() throws IOException {
     String resources_dir = "gs://" + Constants.Env.TEST_BUCKET + "/resources";
-    String resources_prefix = resources_dir.substring(resources_dir.lastIndexOf("/") + 1);
     String test_filename = "note.jsonl";
-    pipeline_file = resources_prefix + "/pipeline/" + test_filename;
-    umls_dir = resources_prefix + "/index/umls_index";
+    pipeline_file = "pipeline/" + test_filename;
+    umls_dir = "index/umls_index";
     testFolderPath = Constants.ProjectPaths.TEST_INPUT;
     testFilePath = testFolderPath + "/" + test_filename;
 
