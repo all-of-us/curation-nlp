@@ -1,6 +1,6 @@
 package org.allofus.curation.io.factory;
 
-import org.allofus.curation.utils.ReadSchemaFromJson;
+import org.allofus.curation.utils.NLPSchema;
 import org.allofus.curation.utils.SanitizeInput;
 import org.apache.beam.sdk.schemas.Schema;
 import org.apache.beam.sdk.transforms.PTransform;
@@ -12,7 +12,7 @@ public abstract class IOWrite extends PTransform<PCollection<Row>, PDone> {
 
   public String output_sink;
   public String output_ext;
-  public Schema output_schema = ReadSchemaFromJson.ReadSchema("note_nlp.json");
+  public Schema output_schema = NLPSchema.getNoteNLPSchema();
 
   public void init(String output_dir, String output_type) {
     output_dir = SanitizeInput.sanitize(output_dir);

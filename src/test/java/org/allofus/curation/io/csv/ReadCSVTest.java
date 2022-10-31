@@ -3,7 +3,7 @@ package org.allofus.curation.io.csv;
 import junit.framework.TestCase;
 import org.allofus.curation.io.factory.IORead;
 import org.allofus.curation.io.factory.IOReadFactory;
-import org.allofus.curation.utils.ReadSchemaFromJson;
+import org.allofus.curation.utils.NLPSchema;
 import org.apache.beam.sdk.coders.CoderRegistry;
 import org.apache.beam.sdk.coders.DoubleCoder;
 import org.apache.beam.sdk.coders.VarIntCoder;
@@ -22,7 +22,7 @@ public class ReadCSVTest extends TestCase {
     TestPipeline p = TestPipeline.create().enableAbandonedNodeEnforcement(false);
 
     String input_type = "csv";
-    Schema note_schema = ReadSchemaFromJson.ReadSchema("note.json");
+    Schema note_schema = NLPSchema.getNoteSchema();
 
     CoderRegistry cr = p.getCoderRegistry();
     cr.registerCoderForClass(Integer.class, VarIntCoder.of());
