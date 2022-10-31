@@ -175,6 +175,9 @@
     <profiles>
         <profile>
             <id>direct</id>
+            <properties>
+                <project.runner>direct</project.runner>
+            </properties>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
