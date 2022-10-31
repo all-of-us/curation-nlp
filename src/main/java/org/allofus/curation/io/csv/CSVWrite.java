@@ -8,10 +8,13 @@ import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PDone;
 import org.apache.beam.sdk.values.Row;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.stream.Collectors;
 
 public class CSVWrite extends IOWrite {
+  private static final Logger LOG = LoggerFactory.getLogger(CSVWrite.class);
 
   public PDone expand(PCollection<Row> input) {
     return input
