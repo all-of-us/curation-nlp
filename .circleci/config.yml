@@ -25,7 +25,7 @@ jobs:
           command: |
             # Use custom docker image from artifact registry
             gcloud auth configure-docker $REGION-docker.pkg.dev
-            cat ./gcloud_key.json | docker login -u _json_key --password-stdin
+            cat ./gcloud_key.json | docker login -u _json_key --password-stdin https://$REGION-docker.pkg.dev
             docker run -d --name curation-nlp-base $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_ID/$CONTAINER_ID:1.2
       - run:
           name: Activate gcloud creds
@@ -59,7 +59,7 @@ jobs:
           command: |
             # Use custom docker image from artifact registry
             gcloud auth configure-docker $REGION-docker.pkg.dev
-            cat ./gcloud_key.json | docker login -u _json_key --password-stdin
+            cat ./gcloud_key.json | docker login -u _json_key --password-stdin https://$REGION-docker.pkg.dev
             docker run -d --name curation-nlp-base $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_ID/$CONTAINER_ID:1.2
       - run:
           name: Activate gcloud creds
