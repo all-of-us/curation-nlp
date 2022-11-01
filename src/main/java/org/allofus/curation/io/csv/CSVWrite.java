@@ -28,7 +28,7 @@ public class CSVWrite extends IOWrite {
                         .map(StringEscapeUtils::escapeCsv)
                         .collect(Collectors.joining(",")))
                 .withSuffix("." + output_ext)
-                .withoutSharding());
+                .withNumShards(1));
   }
 
   public static class RowToCSV extends DoFn<Row, String> {
@@ -40,6 +40,7 @@ public class CSVWrite extends IOWrite {
               .map(Object::toString)
               .map(StringEscapeUtils::escapeCsv)
               .collect(Collectors.joining(","));
+      LOG.info(out);
       receiver.output(out);
     }
   }
