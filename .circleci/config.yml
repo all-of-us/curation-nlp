@@ -21,16 +21,13 @@ jobs:
             --passphrase-fd 0 -d ./gcloud_key_encrypted.json.gpg > ./gcloud_key.json
             export GOOGLE_APPLICATION_CREDENTIALS=./gcloud_key.json
       - run:
-          name: Login to docker to pull artifact registry image
+          name: Activate gcloud and login to docker to pull artifact registry image
           command: |
             # Use custom docker image from artifact registry
+            gcloud auth activate-service-account --key-file=./gcloud_key.json
             gcloud auth configure-docker $REGION-docker.pkg.dev
             cat ./gcloud_key.json | docker login -u _json_key --password-stdin https://$REGION-docker.pkg.dev
             docker run -d --name curation-nlp-base $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_ID/$CONTAINER_ID:1.2
-      - run:
-          name: Activate gcloud creds
-          command: |
-            gcloud auth activate-service-account --key-file=./gcloud_key.json
       - run:
           name: Running tests
           command: |
@@ -55,16 +52,13 @@ jobs:
             --passphrase-fd 0 -d ./gcloud_key_encrypted.json.gpg > ./gcloud_key.json
             export GOOGLE_APPLICATION_CREDENTIALS=./gcloud_key.json
       - run:
-          name: Login to docker to pull artifact registry image
+          name: Activate gcloud and login to docker to pull artifact registry image
           command: |
             # Use custom docker image from artifact registry
+            gcloud auth activate-service-account --key-file=./gcloud_key.json
             gcloud auth configure-docker $REGION-docker.pkg.dev
             cat ./gcloud_key.json | docker login -u _json_key --password-stdin https://$REGION-docker.pkg.dev
             docker run -d --name curation-nlp-base $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_ID/$CONTAINER_ID:1.2
-      - run:
-          name: Activate gcloud creds
-          command: |
-            gcloud auth activate-service-account --key-file=./gcloud_key.json
       - run:
           name: Maven build
           command: mvn --settings .circleci/settings.xml -Dmaven.test.skip=true package
