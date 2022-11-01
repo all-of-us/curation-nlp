@@ -2,23 +2,13 @@
 version: 2.1
 
 job_defaults: &job_defaults
-    docker:
-        # Use custom docker image from artifact registry
-      - image: $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_ID/$CONTAINER_ID:1.2
-        auth:
-          username: _json_key_base64
-          password: $GCLOUD_SERVICE_ACCOUNT
+    machine:
+      image: ubuntu-2004:202010-01
+      docker_layer_caching: true
     resource_class: medium
     parallelism: 1
-
-commands:
-  setup:
     steps:
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
-      - attach_workspace:
-          at: ./target
       - run:
           name: Store gcloud creds to key file
           command: |
@@ -29,12 +19,17 @@ commands:
           command: |
             gcloud auth activate-service-account --key-file=./gcloud_key.json
             export GOOGLE_APPLICATION_CREDENTIALS=./gcloud_key.json
+      - run:
+          name: Login to docker to pull artifact registry image
+          command: |
+            # Use custom docker image from artifact registry
+            cat ./gcloud_key.json | docker login -u _json_key --password-stdin
+            docker run -d --name curation-nlp-base $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_ID/$CONTAINER_ID:1.2
 
 jobs:
   test:
     <<: *job_defaults
     steps:
-      - setup
       - run:
           name: Running tests
           command: |
@@ -50,7 +45,6 @@ jobs:
   build:
     <<: *job_defaults
     steps:
-      - setup
       - run:
           name: Maven build
           command: mvn --settings .circleci/settings.xml -Dmaven.test.skip=true package
