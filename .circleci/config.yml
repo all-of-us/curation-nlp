@@ -17,6 +17,7 @@ jobs:
           name: Store gcloud creds to key file
           command: |
             echo "$GCLOUD_SERVICE_ACCOUNT" > ./gcloud_key_encrypted.json.gpg
+            cat ./gcloud_key_encrypted.json.gpg
             echo "$PRIVATE_GPG_PHRASE" | gpg --decrypt --pinentry-mode loopback --cipher-algo AES256 \
             --passphrase-fd 0 -d ./gcloud_key_encrypted.json.gpg > ./gcloud_key.json
             export GOOGLE_APPLICATION_CREDENTIALS=./gcloud_key.json
@@ -50,6 +51,7 @@ jobs:
           name: Store gcloud creds to key file
           command: |
             echo "$GCLOUD_SERVICE_ACCOUNT" > ./gcloud_key_encrypted.json.gpg
+            cat ./gcloud_key_encrypted.json.gpg
             echo "$PRIVATE_GPG_PHRASE" | gpg --decrypt --pinentry-mode loopback --cipher-algo AES256 \
             --passphrase-fd 0 -d ./gcloud_key_encrypted.json.gpg > ./gcloud_key.json
             export GOOGLE_APPLICATION_CREDENTIALS=./gcloud_key.json
