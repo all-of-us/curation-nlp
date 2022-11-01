@@ -34,7 +34,7 @@ jobs:
             gcloud auth activate-service-account --key-file=./gcloud_key.json
             gcloud auth configure-docker $REGION-docker.pkg.dev
             cat ./gcloud_key.json | docker login -u _json_key --password-stdin https://$REGION-docker.pkg.dev
-            docker run -d --name curation-nlp-base -v "($pwd):/project" --env-file ./env $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_ID/$CONTAINER_ID:1.2
+            docker run -d --name curation-nlp-base -v "$(pwd):/project" --env-file ./env $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_ID/$CONTAINER_ID:1.2
       - run:
           name: Running tests
           command: |
@@ -72,7 +72,7 @@ jobs:
             gcloud auth activate-service-account --key-file=./gcloud_key.json
             gcloud auth configure-docker $REGION-docker.pkg.dev
             cat ./gcloud_key.json | docker login -u _json_key --password-stdin https://$REGION-docker.pkg.dev
-            docker run -d --name curation-nlp-base -v "($pwd):/project" --env-file ./env $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_ID/$CONTAINER_ID:1.2
+            docker run -d --name curation-nlp-base -v "$(pwd):/project" --env-file ./env $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_ID/$CONTAINER_ID:1.2
       - run:
           name: Maven build
           command: mvn --settings .circleci/settings.xml -Dmaven.test.skip=true package
