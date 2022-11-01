@@ -7,6 +7,10 @@ job_defaults: &job_defaults
       docker_layer_caching: true
     resource_class: medium
     parallelism: 1
+
+jobs:
+  test:
+    <<: *job_defaults
     steps:
       - checkout
       - run:
@@ -25,11 +29,6 @@ job_defaults: &job_defaults
             # Use custom docker image from artifact registry
             cat ./gcloud_key.json | docker login -u _json_key --password-stdin
             docker run -d --name curation-nlp-base $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_ID/$CONTAINER_ID:1.2
-
-jobs:
-  test:
-    <<: *job_defaults
-    steps:
       - run:
           name: Running tests
           command: |
@@ -45,6 +44,23 @@ jobs:
   build:
     <<: *job_defaults
     steps:
+      - checkout
+      - run:
+          name: Store gcloud creds to key file
+          command: |
+            echo "$PRIVATE_GPG_PHRASE" | gpg --decrypt --pinentry-mode loopback --cipher-algo AES256 \
+            --passphrase-fd 0 < (echo "$GCLOUD_SERVICE_ACCOUNT") > ./gcloud_key.json
+      - run:
+          name: Activate gcloud creds
+          command: |
+            gcloud auth activate-service-account --key-file=./gcloud_key.json
+            export GOOGLE_APPLICATION_CREDENTIALS=./gcloud_key.json
+      - run:
+          name: Login to docker to pull artifact registry image
+          command: |
+            # Use custom docker image from artifact registry
+            cat ./gcloud_key.json | docker login -u _json_key --password-stdin
+            docker run -d --name curation-nlp-base $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_ID/$CONTAINER_ID:1.2
       - run:
           name: Maven build
           command: mvn --settings .circleci/settings.xml -Dmaven.test.skip=true package
