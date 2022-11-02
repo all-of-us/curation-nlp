@@ -19,14 +19,17 @@ jobs:
             echo "$GCLOUD_SERVICE_ACCOUNT" | base64 -di > ./gcloud_key_encrypted.json.gpg
             echo "$PRIVATE_GPG_PHRASE" | gpg --pinentry-mode loopback --cipher-algo AES256 \
             --passphrase-fd 0 -d ./gcloud_key_encrypted.json.gpg > ./gcloud_key.json
-            export GOOGLE_APPLICATION_CREDENTIALS=./gcloud_key.json
       - run:
           name: Export env vars
           command: |
             touch ./env
+            export GOOGLE_APPLICATION_CREDENTIALS=./gcloud_key.json
             echo "GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS" >> ./env
             echo "TEST_BUCKET=$TEST_BUCKET" >> ./env
             echo "PROJECT_ID=$PROJECT_ID" >> ./env
+            echo "PRIVATE_CLAMP_REPO_URL=$PRIVATE_CLAMP_REPO_URL" >> ./env
+            echo "ARTIFACT_REGISTRY_CLAMP_NLP_USERNAME=$ARTIFACT_REGISTRY_CLAMP_NLP_USERNAME" >> ./env
+            echo "ARTIFACT_REGISTRY_CLAMP_NLP_PASSWORD=$ARTIFACT_REGISTRY_CLAMP_NLP_PASSWORD" >> ./env
       - run:
           name: Activate gcloud and login to docker to pull artifact registry image
           command: |
@@ -34,11 +37,12 @@ jobs:
             gcloud auth activate-service-account --key-file=./gcloud_key.json
             gcloud auth configure-docker $REGION-docker.pkg.dev
             cat ./gcloud_key.json | docker login -u _json_key --password-stdin https://$REGION-docker.pkg.dev
-            docker run -d --name curation-nlp-base -v "$(pwd):/project" --env-file ./env $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_ID/$CONTAINER_ID:1.2
+            docker run -d --name curation-nlp-base -v "$(pwd):/home" --env-file ./env --rm -it \
+              $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_ID/$CONTAINER_ID:1.2 bash
       - run:
           name: Running tests
           command: |
-            mvn --settings .circleci/settings.xml \
+            docker exec -it -w /home curation-nlp-base mvn --settings .circleci/settings.xml \
               -Dtest=$(for file in $(circleci tests glob "src/test/**/**.java" | circleci tests split --split-by=timings); \
                 do basename $file | sed -e "s/.java/,/"; done | tr -d '\r\n') \
               test verify
@@ -57,14 +61,17 @@ jobs:
             echo "$GCLOUD_SERVICE_ACCOUNT" | base64 -di > ./gcloud_key_encrypted.json.gpg
             echo "$PRIVATE_GPG_PHRASE" | gpg --pinentry-mode loopback --cipher-algo AES256 \
             --passphrase-fd 0 -d ./gcloud_key_encrypted.json.gpg > ./gcloud_key.json
-            export GOOGLE_APPLICATION_CREDENTIALS=./gcloud_key.json
       - run:
           name: Export env vars
           command: |
             touch ./env
+            export GOOGLE_APPLICATION_CREDENTIALS=./gcloud_key.json
             echo "GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS" >> ./env
             echo "TEST_BUCKET=$TEST_BUCKET" >> ./env
             echo "PROJECT_ID=$PROJECT_ID" >> ./env
+            echo "PRIVATE_CLAMP_REPO_URL=$PRIVATE_CLAMP_REPO_URL" >> ./env
+            echo "ARTIFACT_REGISTRY_CLAMP_NLP_USERNAME=$ARTIFACT_REGISTRY_CLAMP_NLP_USERNAME" >> ./env
+            echo "ARTIFACT_REGISTRY_CLAMP_NLP_PASSWORD=$ARTIFACT_REGISTRY_CLAMP_NLP_PASSWORD" >> ./env
       - run:
           name: Activate gcloud and login to docker to pull artifact registry image
           command: |
@@ -72,10 +79,11 @@ jobs:
             gcloud auth activate-service-account --key-file=./gcloud_key.json
             gcloud auth configure-docker $REGION-docker.pkg.dev
             cat ./gcloud_key.json | docker login -u _json_key --password-stdin https://$REGION-docker.pkg.dev
-            docker run -d --name curation-nlp-base -v "$(pwd):/project" --env-file ./env $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_ID/$CONTAINER_ID:1.2
+            docker run -d --name curation-nlp-base -v "$(pwd):/home" --env-file ./env --rm -it \
+              $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_ID/$CONTAINER_ID:1.2 bash
       - run:
           name: Maven build
-          command: mvn --settings .circleci/settings.xml -Dmaven.test.skip=true package
+          command: docker exec -it -w /home curation-nlp-base mvn --settings .circleci/settings.xml -Dmaven.test.skip=true package
       - persist_to_workspace:
           root: ./
           paths:
