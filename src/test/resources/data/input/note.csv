@@ -1,3 +1,4 @@
 note_id,person_id,note_date,note_datetime,note_type_concept_id,note_class_concept_id,note_title,note_text,encoding_concept_id,language_concept_id,provider_id,visit_occurrence_id,visit_detail_id,note_source_value
 1001,1,"2020-10-10","2020-10-10 01:01:01",3522232,0,"Administrative note","This note contains a few characters like headache.This note contains a few characters like headache. This note contains a few characters like headache",1147732,4180186,1234,123456,1234567,5
 3002,2,"2020-10-10","2020-10-10 01:01:01",3522232,0,"Administrative note","This is a different note that contains a few characters like acne.This is a different note that contains a few characters like acne. This is a different note that contains a few characters like acne",1147732,4180186,1234,23456,234567,6
+3004,2,"2020-10-10","2020-10-10 01:01:01",3522232,0,"Administrative note","I cough like eight times yesterday.",1147732,4180186,1234,23456,234567,6
