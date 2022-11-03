@@ -8,37 +8,57 @@ job_defaults: &job_defaults
     resource_class: medium
     parallelism: 1
 
+aliases:
+  - &store_gcloud_creds
+      name: Store gcloud creds to key file
+      command: |
+        echo "$GCLOUD_SERVICE_ACCOUNT" | base64 -di > ./gcloud_key_encrypted.json.gpg
+        echo "$PRIVATE_GPG_PHRASE" | gpg --pinentry-mode loopback --cipher-algo AES256 \
+        --passphrase-fd 0 -d ./gcloud_key_encrypted.json.gpg > ./gcloud_key.json
+  - &export_envs
+      name: Export env vars
+      command: |
+        touch ./env
+        export GOOGLE_APPLICATION_CREDENTIALS=./gcloud_key.json
+        echo "GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS" >> ./env
+        echo "TEST_BUCKET=$TEST_BUCKET" >> ./env
+        echo "PROJECT_ID=$PROJECT_ID" >> ./env
+        echo "PRIVATE_CLAMP_REPO_URL=$PRIVATE_CLAMP_REPO_URL" >> ./env
+        echo "ARTIFACT_REGISTRY_CLAMP_NLP_USERNAME=$ARTIFACT_REGISTRY_CLAMP_NLP_USERNAME" >> ./env
+        echo "ARTIFACT_REGISTRY_CLAMP_NLP_PASSWORD=$ARTIFACT_REGISTRY_CLAMP_NLP_PASSWORD" >> ./env
+  - &run_docker
+      name: Activate gcloud and login to docker to pull artifact registry image
+      command: |
+        # Use custom docker image from artifact registry
+        gcloud auth activate-service-account --key-file=./gcloud_key.json
+        gcloud auth configure-docker $REGION-docker.pkg.dev
+        cat ./gcloud_key.json | docker login -u _json_key --password-stdin https://$REGION-docker.pkg.dev
+        docker run -d --name curation-nlp-base -v "$(pwd):/home" --env-file ./env --rm -it \
+          $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_ID/$CONTAINER_ID:1.2 bash
+
 jobs:
+  build:
+    <<: *job_defaults
+    steps:
+      - checkout
+      - run: *store_gcloud_creds
+      - run: *export_envs
+      - run: *run_docker
+      - run:
+          name: Maven build
+          command: docker exec -it -w /home curation-nlp-base mvn --settings .circleci/settings.xml -Dmaven.test.skip=true package
+      - persist_to_workspace:
+          root: ./
+          paths:
+            - target/
+
   test:
     <<: *job_defaults
     steps:
       - checkout
-      - run:
-          name: Store gcloud creds to key file
-          command: |
-            echo "$GCLOUD_SERVICE_ACCOUNT" | base64 -di > ./gcloud_key_encrypted.json.gpg
-            echo "$PRIVATE_GPG_PHRASE" | gpg --pinentry-mode loopback --cipher-algo AES256 \
-            --passphrase-fd 0 -d ./gcloud_key_encrypted.json.gpg > ./gcloud_key.json
-      - run:
-          name: Export env vars
-          command: |
-            touch ./env
-            export GOOGLE_APPLICATION_CREDENTIALS=./gcloud_key.json
-            echo "GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS" >> ./env
-            echo "TEST_BUCKET=$TEST_BUCKET" >> ./env
-            echo "PROJECT_ID=$PROJECT_ID" >> ./env
-            echo "PRIVATE_CLAMP_REPO_URL=$PRIVATE_CLAMP_REPO_URL" >> ./env
-            echo "ARTIFACT_REGISTRY_CLAMP_NLP_USERNAME=$ARTIFACT_REGISTRY_CLAMP_NLP_USERNAME" >> ./env
-            echo "ARTIFACT_REGISTRY_CLAMP_NLP_PASSWORD=$ARTIFACT_REGISTRY_CLAMP_NLP_PASSWORD" >> ./env
-      - run:
-          name: Activate gcloud and login to docker to pull artifact registry image
-          command: |
-            # Use custom docker image from artifact registry
-            gcloud auth activate-service-account --key-file=./gcloud_key.json
-            gcloud auth configure-docker $REGION-docker.pkg.dev
-            cat ./gcloud_key.json | docker login -u _json_key --password-stdin https://$REGION-docker.pkg.dev
-            docker run -d --name curation-nlp-base -v "$(pwd):/home" --env-file ./env --rm -it \
-              $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_ID/$CONTAINER_ID:1.2 bash
+      - run: *store_gcloud_creds
+      - run: *export_envs
+      - run: *run_docker
       - run:
           name: Running tests
           command: |
@@ -50,44 +70,6 @@ jobs:
           path: target/surefire-reports
       - store_artifacts:
           path: target/coverage-reports/jacoco/index.html
-
-  build:
-    <<: *job_defaults
-    steps:
-      - checkout
-      - run:
-          name: Store gcloud creds to key file
-          command: |
-            echo "$GCLOUD_SERVICE_ACCOUNT" | base64 -di > ./gcloud_key_encrypted.json.gpg
-            echo "$PRIVATE_GPG_PHRASE" | gpg --pinentry-mode loopback --cipher-algo AES256 \
-            --passphrase-fd 0 -d ./gcloud_key_encrypted.json.gpg > ./gcloud_key.json
-      - run:
-          name: Export env vars
-          command: |
-            touch ./env
-            export GOOGLE_APPLICATION_CREDENTIALS=./gcloud_key.json
-            echo "GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS" >> ./env
-            echo "TEST_BUCKET=$TEST_BUCKET" >> ./env
-            echo "PROJECT_ID=$PROJECT_ID" >> ./env
-            echo "PRIVATE_CLAMP_REPO_URL=$PRIVATE_CLAMP_REPO_URL" >> ./env
-            echo "ARTIFACT_REGISTRY_CLAMP_NLP_USERNAME=$ARTIFACT_REGISTRY_CLAMP_NLP_USERNAME" >> ./env
-            echo "ARTIFACT_REGISTRY_CLAMP_NLP_PASSWORD=$ARTIFACT_REGISTRY_CLAMP_NLP_PASSWORD" >> ./env
-      - run:
-          name: Activate gcloud and login to docker to pull artifact registry image
-          command: |
-            # Use custom docker image from artifact registry
-            gcloud auth activate-service-account --key-file=./gcloud_key.json
-            gcloud auth configure-docker $REGION-docker.pkg.dev
-            cat ./gcloud_key.json | docker login -u _json_key --password-stdin https://$REGION-docker.pkg.dev
-            docker run -d --name curation-nlp-base -v "$(pwd):/home" --env-file ./env --rm -it \
-              $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY_ID/$CONTAINER_ID:1.2 bash
-      - run:
-          name: Maven build
-          command: docker exec -it -w /home curation-nlp-base mvn --settings .circleci/settings.xml -Dmaven.test.skip=true package
-      - persist_to_workspace:
-          root: ./
-          paths:
-            - target/
 
 workflows:
   version: 2
