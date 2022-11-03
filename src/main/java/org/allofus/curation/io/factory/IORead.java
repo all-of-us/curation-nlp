@@ -1,6 +1,6 @@
 package org.allofus.curation.io.factory;
 
-import org.allofus.curation.utils.ReadSchemaFromJson;
+import org.allofus.curation.utils.NLPSchema;
 import org.allofus.curation.utils.SanitizeInput;
 import org.apache.beam.sdk.schemas.Schema;
 import org.apache.beam.sdk.transforms.PTransform;
@@ -10,7 +10,7 @@ import org.apache.beam.sdk.values.Row;
 
 public abstract class IORead extends PTransform<PBegin, PCollection<Row>> {
 
-  public static Schema input_schema = ReadSchemaFromJson.ReadSchema("note.json");
+  public static Schema input_schema = NLPSchema.getNoteSchema();
   public String input_pattern;
 
   public void init(String input_dir, String input_type) {

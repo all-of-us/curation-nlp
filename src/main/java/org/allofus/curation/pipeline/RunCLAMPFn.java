@@ -2,13 +2,12 @@ package org.allofus.curation.pipeline;
 
 import edu.uth.clamp.config.ConfigUtil;
 import edu.uth.clamp.config.ConfigurationException;
-import edu.uth.clamp.config.Processor;
 import edu.uth.clamp.io.DocumentIOException;
 import edu.uth.clamp.nlp.encoding.MaxMatchingUmlsEncoderCovid;
 import edu.uth.clamp.nlp.encoding.RxNormEncoderUIMA;
 import edu.uth.clamp.nlp.structure.*;
 import edu.uth.clamp.nlp.uima.UmlsEncoderUIMA;
-import org.allofus.curation.utils.ReadSchemaFromJson;
+import org.allofus.curation.utils.NLPSchema;
 import org.allofus.curation.utils.SanitizeInput;
 import org.allofus.curation.utils.StorageTmp;
 import org.apache.beam.sdk.schemas.Schema;
@@ -21,7 +20,6 @@ import org.apache.beam.sdk.values.Row;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.allofus.curation.utils.ReadSchemaFromJson;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,9 +32,9 @@ import java.util.concurrent.locks.ReentrantLock;
 public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
 
   private static final ReentrantLock INIT_MUTEX_LOCK = new ReentrantLock();
-  private static final Logger log = LoggerFactory.getLogger(Processor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(RunCLAMPFn.class);
   private static final List<DocProcessor> procList = new ArrayList<>();
-  static Schema output_schema = ReadSchemaFromJson.ReadSchema("note_nlp.json");
+  static Schema output_schema = NLPSchema.getNoteNLPSchema();
   private static Map<String, String> attrMap = new HashMap<String, String>();
   File outPath;
 
@@ -122,12 +120,11 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
         int sec_id = 0;
         for (ClampSection sec : doc.getSections()) {
           for (ClampNameEntity cne : doc.getNameEntity()) {
-            Schema schema = ReadSchemaFromJson.ReadSchema("note_nlp.json");
             String tmp = getTermTemporal(doc, cne);
             String te = getTermExists(cne);
             String tm = getTermModifiers(cne);
             Row out =
-                Row.withSchema(schema)
+                Row.withSchema(output_schema)
                     .addValue(0L)
                     .addValue(input.getValue("note_id"))
                     .addValue((long) sec_id)

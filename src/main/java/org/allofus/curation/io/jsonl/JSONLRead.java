@@ -10,6 +10,8 @@ import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.Row;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,6 +21,7 @@ import java.nio.channels.Channels;
 import java.nio.charset.StandardCharsets;
 
 public class JSONLRead extends IORead {
+  static final Logger LOG = LoggerFactory.getLogger(JSONLRead.class);
 
   @Override
   public PCollection<Row> expand(PBegin input) {

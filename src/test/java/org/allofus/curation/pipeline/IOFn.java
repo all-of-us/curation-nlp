@@ -1,6 +1,6 @@
 package org.allofus.curation.pipeline;
 
-import org.allofus.curation.utils.ReadSchemaFromJson;
+import org.allofus.curation.utils.NLPSchema;
 import org.apache.beam.sdk.schemas.Schema;
 import org.apache.beam.sdk.schemas.SchemaCoder;
 import org.apache.beam.sdk.transforms.DoFn;
@@ -16,7 +16,7 @@ import java.util.Date;
 
 public class IOFn extends PTransform<PCollection<Row>, PCollection<Row>> {
 
-  static Schema output_schema = ReadSchemaFromJson.ReadSchema("note_nlp.json");
+  static Schema output_schema = NLPSchema.getNoteNLPSchema();
 
   @Override
   public PCollection<Row> expand(PCollection<Row> input) {

@@ -12,6 +12,8 @@ import org.apache.beam.sdk.values.Row;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang.math.NumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,6 +23,7 @@ import java.nio.channels.Channels;
 import java.nio.charset.StandardCharsets;
 
 public class CSVRead extends IORead {
+  static final Logger LOG = LoggerFactory.getLogger(CSVRead.class);
 
   public PCollection<Row> expand(PBegin input) {
     return input
