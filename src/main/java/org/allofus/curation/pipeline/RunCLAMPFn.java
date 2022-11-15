@@ -95,7 +95,7 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
     }
     Instant end = Instant.now();
     Duration timeElapsed = Duration.between(start, end);
-    System.out.println("init CLAMP: Time taken: " + timeElapsed.toMillis() + " milliseconds");
+    LOG.info("init CLAMP: Time taken: " + timeElapsed.toMillis() + " milliseconds");
   }
 
   public static class RunCLAMPSingleFn extends DoFn<Row, Row> {
@@ -144,7 +144,7 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
           }
           sec_id++;
         }
-        System.out.println("Processed document " + note_id);
+        LOG.info("Processed document " + note_id);
       } catch (Exception e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
