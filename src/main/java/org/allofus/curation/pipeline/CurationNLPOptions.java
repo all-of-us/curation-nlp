@@ -22,6 +22,12 @@ public interface CurationNLPOptions extends PipelineOptions {
   @Validation.Required
   String getInputType();
 
+  void setPipeline(String value);
+
+  @Description("Pipeline jar to use, e.g: clamp-ner.pipeline.jar, clinical_pipeline.pipeline.jar")
+  @Validation.Required
+  String getPipeline();
+
   void setInputType(String value);
 
   @Description("Output file type, e.g: csv, jsonl, bigquery")

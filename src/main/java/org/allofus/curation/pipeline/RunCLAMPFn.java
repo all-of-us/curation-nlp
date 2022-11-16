@@ -38,6 +38,7 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
   private static Map<String, String> attrMap = new HashMap<String, String>();
   File outPath;
   String resources_dir;
+  String pipeline;
 
   @Override
   public PCollection<Row> expand(PCollection<Row> input) {
@@ -52,25 +53,32 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
     this.outPath = new File(outDir);
     String resources_param = options.getResourcesDir();
     resources_dir = SanitizeInput.sanitize(resources_param);
+    this.pipeline = options.getPipeline();
   }
 
   public class RunCLAMPSingleFn extends DoFn<Row, Row> {
 
+    StorageTmp stmp = new StorageTmp(resources_dir);
+
     @Setup
     public void init() throws IOException, ConfigurationException, DocumentIOException {
-      String umlsIndexDir = "/index/umls_index";
-      String pipeline_file = "/pipeline/clamp-ner.pipeline.jar";
+      String primaryIndexDir = "/index/";
+      String umlsIndexDir = primaryIndexDir + "umls_index";
+      String rxNormIndexDir = primaryIndexDir + "rxnorm_index";
+      String pipeline_file = "/pipeline/" + pipeline;
       List<DocProcessor> pipeline;
       if (resources_dir.startsWith("gs")) {
-        StorageTmp stmp = new StorageTmp(resources_dir);
         umlsIndexDir = stmp.StoreTmpDir(umlsIndexDir.substring(1));
+        rxNormIndexDir = stmp.StoreTmpDir(rxNormIndexDir.substring(1));
         pipeline_file = stmp.StoreTmpFile(pipeline_file.substring(1));
       } else {
         umlsIndexDir = resources_dir + umlsIndexDir;
+        rxNormIndexDir = resources_dir + rxNormIndexDir;
         pipeline_file = resources_dir + pipeline_file;
       }
 
       File umlsIndex = new File(umlsIndexDir);
+      File rxNormIndex = new File(rxNormIndexDir);
       File pipelineJar = new File(pipeline_file);
 
       Instant start = Instant.now();
@@ -84,12 +92,10 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
             ((UmlsEncoderUIMA) proc).setIndexDir(umlsIndex);
             procList.add(proc);
           } else if (proc instanceof RxNormEncoderUIMA) {
-            File index = new File(umlsIndex.getParent() + "/rxnorm_index/");
-            ((RxNormEncoderUIMA) proc).setIndex(index.getAbsolutePath());
+            ((RxNormEncoderUIMA) proc).setIndex(rxNormIndex.getAbsolutePath());
             procList.add(proc);
           } else if (proc instanceof MaxMatchingUmlsEncoderCovid) {
-            File index = new File(umlsIndex.getParent() + "/umls_index/");
-            ((MaxMatchingUmlsEncoderCovid) proc).setIndexDir(index.getAbsolutePath());
+            ((MaxMatchingUmlsEncoderCovid) proc).setIndexDir(umlsIndex.getAbsolutePath());
             procList.add(proc);
           } else {
             procList.add(proc);
