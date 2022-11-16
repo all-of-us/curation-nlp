@@ -55,11 +55,11 @@ public class CurationNLPMain {
     runCurationNLP(options);
     Instant end2 = Instant.now();
     Duration timeElapsed = Duration.between(start2, end2);
-    System.out.println("runCurationNLP: Time taken: " + timeElapsed.toMillis() + " milliseconds");
+    LOG.info("runCurationNLP: Time taken: " + timeElapsed.toMillis() + " milliseconds");
     Instant end = Instant.now();
     timeElapsed = Duration.between(start, end);
-    System.out.println("Time taken: " + timeElapsed.toMillis() + " milliseconds");
-    System.out.println("Run CLAMP pipeline done.");
+    LOG.info("Time taken: " + timeElapsed.toMillis() + " milliseconds");
+    LOG.info("Run CLAMP pipeline done.");
 
     System.exit(0);
   }

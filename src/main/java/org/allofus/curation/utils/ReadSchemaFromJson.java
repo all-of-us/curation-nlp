@@ -1,8 +1,11 @@
 package org.allofus.curation.utils;
 
+import org.allofus.curation.pipeline.RunCLAMPFn;
 import org.apache.beam.sdk.schemas.Schema;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -14,6 +17,8 @@ import java.util.List;
 import static org.allofus.curation.utils.Constants.ProjectPaths.SCHEMA_CLINICAL;
 
 public class ReadSchemaFromJson {
+
+  private static final Logger LOG = LoggerFactory.getLogger(ReadSchemaFromJson.class);
 
   public static Schema ReadSchema(String file_path) {
     List<Schema.Field> fields = new LinkedList<>();
@@ -41,7 +46,7 @@ public class ReadSchemaFromJson {
         fields.add(Schema.Field.nullable(name, datatype));
       }
     } catch (IOException e) {
-      System.out.println(e.getMessage() + ", could not read schema for file " + file_path);
+      LOG.info(e.getMessage() + ", could not read schema for file " + file_path);
     }
     return Schema.of(fields.toArray(new Schema.Field[0]));
   }
@@ -52,7 +57,7 @@ public class ReadSchemaFromJson {
       byte[] encoded = Files.readAllBytes(Paths.get(SCHEMA_CLINICAL + "/" + file_path));
       return new String(encoded, StandardCharsets.UTF_8);
     } catch (IOException e) {
-      System.out.println(e.getMessage() + ", could not read schema for file " + file_path);
+      LOG.info(e.getMessage() + ", could not read schema for file " + file_path);
       return "";
     }
   }
