@@ -29,25 +29,27 @@ public class StorageTmp {
 
   public String StoreTmpFile(String pipeline_file) throws IOException {
     Path pipeline_path = Files.createTempFile("pipeline", ".jar");
+    pipeline_path.toFile().deleteOnExit();
     pipeline_file = resources + "/" + pipeline_file;
     Blob blob = storage.get(BlobId.of(bucket, pipeline_file));
     blob.downloadTo(pipeline_path);
     return String.valueOf(pipeline_path);
   }
 
-  public String StoreTmpDir(String umlsDir) throws IOException {
-    Path umls_path = Files.createTempDirectory("umls");
-    umlsDir = resources + "/" + umlsDir;
-    Page<Blob> blobs = storage.list(bucket, Storage.BlobListOption.prefix(umlsDir));
+  public String StoreTmpDir(String dictDir) throws IOException {
+    Path dict_path = Files.createTempDirectory("dict");
+    dictDir = resources + "/" + dictDir;
+    Page<Blob> blobs = storage.list(bucket, Storage.BlobListOption.prefix(dictDir));
     for (Blob blob : blobs.iterateAll()) {
       String blob_name = blob.getName();
       if (!blob_name.endsWith("/")) {
         blob_name = blob_name.substring(blob.getName().lastIndexOf("/"));
-        File file_path = new File(umls_path + blob_name);
+        File file_path = new File(dict_path + blob_name);
+        file_path.deleteOnExit();
         blob.downloadTo(file_path.toPath());
       }
     }
 
-    return String.valueOf(umls_path);
+    return String.valueOf(dict_path);
   }
 }
