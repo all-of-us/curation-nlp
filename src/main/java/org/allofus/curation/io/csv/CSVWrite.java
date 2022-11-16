@@ -40,7 +40,6 @@ public class CSVWrite extends IOWrite {
               .map(Object::toString)
               .map(StringEscapeUtils::escapeCsv)
               .collect(Collectors.joining(","));
-      LOG.info(out);
       receiver.output(out);
     }
   }
