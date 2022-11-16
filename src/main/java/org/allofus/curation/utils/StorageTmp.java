@@ -1,7 +1,6 @@
 package org.allofus.curation.utils;
 
 import com.google.api.gax.paging.Page;
-import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.Storage;
@@ -13,10 +12,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import static org.allofus.curation.utils.Constants.Env.GOOGLE_APPLICATION_CREDENTIALS;
-import static org.allofus.curation.utils.Constants.Env.PROJECT_ID;
 
 public class StorageTmp {
 
@@ -25,18 +20,11 @@ public class StorageTmp {
   Storage storage;
   String resources;
 
-  public StorageTmp(String resources_dir) throws IOException {
+  public StorageTmp(String resources_dir) {
     String[] bucket_parts = resources_dir.substring(5).split("/", 2);
     bucket = bucket_parts[0];
     resources = resources_dir.substring(5).substring(bucket.length()).substring(1);
-    storage =
-        StorageOptions.newBuilder()
-            .setProjectId(PROJECT_ID)
-            .setCredentials(
-                GoogleCredentials.fromStream(
-                    Files.newInputStream(Paths.get(GOOGLE_APPLICATION_CREDENTIALS))))
-            .build()
-            .getService();
+    storage = StorageOptions.getDefaultInstance().getService();
   }
 
   public String StoreTmpFile(String pipeline_file) throws IOException {
