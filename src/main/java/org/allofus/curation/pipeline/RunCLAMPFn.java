@@ -66,6 +66,7 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
       String umlsIndexDir = primaryIndexDir + "umls_index";
       String rxNormIndexDir = primaryIndexDir + "rxnorm_index";
       String pipeline_file = "/pipeline/" + pipeline;
+
       List<DocProcessor> pipeline;
       if (resources_dir.startsWith("gs")) {
         umlsIndexDir = stmp.StoreTmpDir(umlsIndexDir.substring(1));
@@ -92,10 +93,10 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
             ((UmlsEncoderUIMA) proc).setIndexDir(umlsIndex);
             procList.add(proc);
           } else if (proc instanceof RxNormEncoderUIMA) {
-            ((RxNormEncoderUIMA) proc).setIndex(rxNormIndex.getAbsolutePath());
+            ((RxNormEncoderUIMA) proc).setIndex(rxNormIndexDir);
             procList.add(proc);
           } else if (proc instanceof MaxMatchingUmlsEncoderCovid) {
-            ((MaxMatchingUmlsEncoderCovid) proc).setIndexDir(umlsIndex.getAbsolutePath());
+            ((MaxMatchingUmlsEncoderCovid) proc).setIndexDir(umlsIndexDir);
             procList.add(proc);
           } else {
             procList.add(proc);
