@@ -22,12 +22,14 @@ public class PipelineIOTest extends TestCase {
 
   public void testPipelineIO() throws IOException {
     String ext = "csv";
+    String pipeline_jar = "clamp-ner.pipeline.jar";
 
     String[] args =
         new String[] {
           "--input=" + ProjectPaths.TEST_INPUT + "/",
           "--output=" + ProjectPaths.TEST_OUTPUT + "/",
           "--resourcesDir=" + ProjectPaths.CLAMP_RESOURCES,
+          "--pipeline=" + pipeline_jar,
           "--inputType=jsonl",
           "--outputType=" + ext,
         };
