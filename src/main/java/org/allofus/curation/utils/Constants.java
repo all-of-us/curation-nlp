@@ -3,9 +3,10 @@ package org.allofus.curation.utils;
 public final class Constants {
   public static class Env {
     public static final String PROJECT_ID = System.getenv("PROJECT_ID");
-    public static final String GOOGLE_APPLICATION_CREDENTIALS =
-        System.getenv("GOOGLE_APPLICATION_CREDENTIALS");
+    public static final String GOOGLE_APPLICATION_CREDENTIALS = System.getenv("GOOGLE_APPLICATION_CREDENTIALS");
     public static final String TEST_BUCKET = System.getenv("TEST_BUCKET");
+    public static final String TEST_DATASET = System.getenv("TEST_DATASET");
+    public static final String TEST_TMP_LOCATION = System.getenv("TEST_TMP_LOCATION");
   }
 
   public static class ProjectPaths {
