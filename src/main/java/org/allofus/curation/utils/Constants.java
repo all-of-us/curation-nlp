@@ -7,6 +7,9 @@ public final class Constants {
     public static final String TEST_BUCKET = System.getenv("TEST_BUCKET");
     public static final String TEST_DATASET = System.getenv("TEST_DATASET");
     public static final String TEST_TMP_LOCATION = System.getenv("TEST_TMP_LOCATION");
+    public static final String TEST_STAGING_LOCATION = System.getenv("TEST_STAGING_LOCATION");
+    public static final String TEST_SUBNETWORK = System.getenv("TEST_SUBNETWORK");
+    public static final String TEST_REGION = System.getenv("TEST_REGION");
   }
 
   public static class ProjectPaths {
