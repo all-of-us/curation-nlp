@@ -39,6 +39,12 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
   File outPath;
   String resources_dir;
   String pipeline;
+  File umlsIndex;
+  File rxNormIndex;
+  File pipelineJar;
+  String umlsIndexDir;
+  String rxNormIndexDir;
+  String pipeline_file;
 
   @Override
   public PCollection<Row> expand(PCollection<Row> input) {
@@ -48,39 +54,48 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
         .setCoder(SchemaCoder.of(output_schema));
   }
 
-  public void init_clamp(CurationNLPOptions options) {
+  public void init_clamp(CurationNLPOptions options) throws IOException {
+    // Set output dir
     String outDir = options.getOutput();
     this.outPath = new File(outDir);
+
+    // Use resources dir path and sanitize
     String resources_param = options.getResourcesDir();
     resources_dir = SanitizeInput.sanitize(resources_param);
+
+    // Set NLP pipeline jar file to use
     this.pipeline = options.getPipeline();
+    pipeline_file = "/pipeline/" + pipeline;
+
+    // Set index dirs
+    String primaryIndexDir = "/index/";
+    umlsIndexDir = primaryIndexDir + "umls_index";
+    rxNormIndexDir = primaryIndexDir + "rxnorm_index";
+
+    // If resources in google bucket, download them
+    if (resources_dir.startsWith("gs")) {
+      StorageTmp stmp = new StorageTmp(resources_dir);
+      umlsIndexDir = stmp.StoreTmpDir(umlsIndexDir.substring(1));
+      rxNormIndexDir = stmp.StoreTmpDir(rxNormIndexDir.substring(1));
+      pipeline_file = stmp.StoreTmpFile(pipeline_file.substring(1));
+    } else {
+      umlsIndexDir = resources_dir + umlsIndexDir;
+      rxNormIndexDir = resources_dir + rxNormIndexDir;
+      pipeline_file = resources_dir + pipeline_file;
+    }
+
+    // Use files
+    umlsIndex = new File(umlsIndexDir);
+    rxNormIndex = new File(rxNormIndexDir);
+    pipelineJar = new File(pipeline_file);
   }
 
   public class RunCLAMPSingleFn extends DoFn<Row, Row> {
 
-    StorageTmp stmp = new StorageTmp(resources_dir);
-
     @Setup
     public void init() throws IOException, ConfigurationException, DocumentIOException {
-      String primaryIndexDir = "/index/";
-      String umlsIndexDir = primaryIndexDir + "umls_index";
-      String rxNormIndexDir = primaryIndexDir + "rxnorm_index";
-      String pipeline_file = "/pipeline/" + pipeline;
 
       List<DocProcessor> pipeline;
-      if (resources_dir.startsWith("gs")) {
-        umlsIndexDir = stmp.StoreTmpDir(umlsIndexDir.substring(1));
-        rxNormIndexDir = stmp.StoreTmpDir(rxNormIndexDir.substring(1));
-        pipeline_file = stmp.StoreTmpFile(pipeline_file.substring(1));
-      } else {
-        umlsIndexDir = resources_dir + umlsIndexDir;
-        rxNormIndexDir = resources_dir + rxNormIndexDir;
-        pipeline_file = resources_dir + pipeline_file;
-      }
-
-      File umlsIndex = new File(umlsIndexDir);
-      File rxNormIndex = new File(rxNormIndexDir);
-      File pipelineJar = new File(pipeline_file);
 
       Instant start = Instant.now();
       try {
