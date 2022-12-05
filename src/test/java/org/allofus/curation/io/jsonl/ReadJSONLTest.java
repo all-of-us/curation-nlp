@@ -32,7 +32,7 @@ public class ReadJSONLTest extends TestCase {
     IORead ioRead = IOReadFactory.create(input_type);
     ioRead.init(TEST_INPUT, input_type);
 
-    PCollection<org.apache.beam.sdk.values.Row> actual = p.apply(ioRead).setRowSchema(note_schema);
+    PCollection<Row> actual = p.apply(ioRead).setRowSchema(note_schema);
 
     Row row_1 =
         Row.withSchema(note_schema)
