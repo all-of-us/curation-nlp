@@ -5,8 +5,10 @@ import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.BigQueryOptions;
 import org.allofus.curation.io.factory.IORead;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
+import org.apache.beam.sdk.schemas.SchemaCoder;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.transforms.Reshuffle;
 import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.Row;
@@ -27,7 +29,10 @@ public class BigQueryRead extends IORead {
             BigQueryIO.readTableRows()
                 .fromQuery(String.format("SELECT * FROM " + input_pattern))
                 .usingStandardSql())
-        .apply(ParDo.of(new BQToRow()));
+        .apply(Reshuffle.viaRandomKey())
+        .apply(ParDo.of(new BQToRow()))
+        .setRowSchema(input_schema)
+        .setCoder(SchemaCoder.of(input_schema));
   }
 
   public static class BQToRow extends DoFn<TableRow, Row> {
