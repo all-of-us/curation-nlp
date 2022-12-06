@@ -21,13 +21,14 @@ import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 import static org.allofus.curation.utils.Constants.Env.*;
 
@@ -179,8 +180,6 @@ public class BigQueryWriteTest extends TestCase {
       actual.add(row.toString());
     }
 
-    LOG.info(actual.toString());
-    LOG.info(expected.toString());
     assertTrue(actual.containsAll(expected) && expected.containsAll(actual));
   }
 
