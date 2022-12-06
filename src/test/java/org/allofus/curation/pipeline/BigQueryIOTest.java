@@ -2,6 +2,7 @@ package org.allofus.curation.pipeline;
 
 import com.google.cloud.bigquery.*;
 import junit.framework.TestCase;
+import org.allofus.curation.io.bigquery.BigQueryWriteTest;
 import org.allofus.curation.io.factory.IORead;
 import org.allofus.curation.io.factory.IOReadFactory;
 import org.allofus.curation.io.factory.IOWrite;
@@ -18,6 +19,8 @@ import org.apache.beam.sdk.testing.TestPipelineOptions;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -29,6 +32,8 @@ import java.util.UUID;
 import static org.allofus.curation.utils.Constants.Env.*;
 
 public class BigQueryIOTest extends TestCase {
+
+  private static final Logger LOG = LoggerFactory.getLogger(BigQueryIOTest.class);
 
   BigQuery bigquery = BigQueryOptions.getDefaultInstance().getService();
   String input_table = PROJECT_ID + "." + TEST_DATASET + "." + TEST_INPUT_TABLE;
@@ -144,6 +149,8 @@ public class BigQueryIOTest extends TestCase {
       actual.add(row.toString());
     }
 
+    LOG.info(actual.toString());
+    LOG.info(expected.toString());
     assertTrue(actual.containsAll(expected) && expected.containsAll(actual));
   }
 

@@ -4,6 +4,7 @@ import com.google.cloud.bigquery.*;
 import junit.framework.TestCase;
 import org.allofus.curation.io.factory.IOWrite;
 import org.allofus.curation.io.factory.IOWriteFactory;
+import org.allofus.curation.pipeline.RunCLAMPFn;
 import org.allofus.curation.utils.NLPSchema;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.CoderRegistry;
@@ -18,6 +19,8 @@ import org.apache.beam.sdk.values.Row;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -29,6 +32,8 @@ import java.util.UUID;
 import static org.allofus.curation.utils.Constants.Env.*;
 
 public class BigQueryWriteTest extends TestCase {
+
+  private static final Logger LOG = LoggerFactory.getLogger(BigQueryWriteTest.class);
 
   BigQuery bigquery = BigQueryOptions.getDefaultInstance().getService();
   String output_table = PROJECT_ID + "." + TEST_DATASET + "." + TEST_OUTPUT_TABLE;
@@ -176,6 +181,8 @@ public class BigQueryWriteTest extends TestCase {
       actual.add(row.toString());
     }
 
+    LOG.info(actual.toString());
+    LOG.info(expected.toString());
     assertTrue(actual.containsAll(expected) && expected.containsAll(actual));
   }
 
