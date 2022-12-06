@@ -54,7 +54,7 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
         .setCoder(SchemaCoder.of(output_schema));
   }
 
-  public void init_clamp(CurationNLPOptions options) throws IOException {
+  public void init_clamp(CurationNLPOptions options) throws IOException, ConfigurationException, DocumentIOException {
     // Set output dir
     String outDir = options.getOutput();
     this.outPath = new File(outDir);
@@ -88,42 +88,27 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
     umlsIndex = new File(umlsIndexDir);
     rxNormIndex = new File(rxNormIndexDir);
     pipelineJar = new File(pipeline_file);
+
+    List<DocProcessor> pipeline;
+    pipeline = ConfigUtil.importPipelineFromJar(pipelineJar);
+
+    for (DocProcessor proc : pipeline) {
+      if (proc instanceof UmlsEncoderUIMA) {
+        ((UmlsEncoderUIMA) proc).setIndexDir(umlsIndex);
+        procList.add(proc);
+      } else if (proc instanceof RxNormEncoderUIMA) {
+        ((RxNormEncoderUIMA) proc).setIndex(rxNormIndexDir);
+        procList.add(proc);
+      } else if (proc instanceof MaxMatchingUmlsEncoderCovid) {
+        ((MaxMatchingUmlsEncoderCovid) proc).setIndexDir(umlsIndexDir);
+        procList.add(proc);
+      } else {
+        procList.add(proc);
+      }
+    }
   }
 
   public class RunCLAMPSingleFn extends DoFn<Row, Row> {
-
-    @Setup
-    public void init() throws IOException, ConfigurationException, DocumentIOException {
-
-      List<DocProcessor> pipeline;
-
-      Instant start = Instant.now();
-      try {
-        INIT_MUTEX_LOCK.lock();
-        // load pipelines;
-        pipeline = ConfigUtil.importPipelineFromJar(pipelineJar);
-
-        for (DocProcessor proc : pipeline) {
-          if (proc instanceof UmlsEncoderUIMA) {
-            ((UmlsEncoderUIMA) proc).setIndexDir(umlsIndex);
-            procList.add(proc);
-          } else if (proc instanceof RxNormEncoderUIMA) {
-            ((RxNormEncoderUIMA) proc).setIndex(rxNormIndexDir);
-            procList.add(proc);
-          } else if (proc instanceof MaxMatchingUmlsEncoderCovid) {
-            ((MaxMatchingUmlsEncoderCovid) proc).setIndexDir(umlsIndexDir);
-            procList.add(proc);
-          } else {
-            procList.add(proc);
-          }
-        }
-      } finally {
-        INIT_MUTEX_LOCK.unlock();
-      }
-      Instant end = Instant.now();
-      Duration timeElapsed = Duration.between(start, end);
-      LOG.info("init CLAMP: Time taken: " + timeElapsed.toMillis() + " milliseconds");
-    }
 
     @ProcessElement
     public void processElement(@Element Row input, OutputReceiver<Row> receiver) {
