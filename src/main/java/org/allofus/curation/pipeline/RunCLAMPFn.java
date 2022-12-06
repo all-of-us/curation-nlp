@@ -45,6 +45,7 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
   String umlsIndexDir;
   String rxNormIndexDir;
   String pipeline_file;
+  List<DocProcessor> pipeline_list;
 
   @Override
   public PCollection<Row> expand(PCollection<Row> input) {
@@ -89,7 +90,7 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
     rxNormIndex = new File(rxNormIndexDir);
     pipelineJar = new File(pipeline_file);
 
-    List<DocProcessor> pipeline_list = ConfigUtil.importPipelineFromJar(pipelineJar);
+    pipeline_list = ConfigUtil.importPipelineFromJar(pipelineJar);
 
     for (DocProcessor proc : pipeline_list) {
       if (proc instanceof UmlsEncoderUIMA) {
