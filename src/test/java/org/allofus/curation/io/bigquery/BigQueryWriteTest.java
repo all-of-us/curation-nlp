@@ -4,7 +4,6 @@ import com.google.cloud.bigquery.*;
 import junit.framework.TestCase;
 import org.allofus.curation.io.factory.IOWrite;
 import org.allofus.curation.io.factory.IOWriteFactory;
-import org.allofus.curation.pipeline.RunCLAMPFn;
 import org.allofus.curation.utils.NLPSchema;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.CoderRegistry;
@@ -24,10 +23,11 @@ import org.slf4j.LoggerFactory;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 import static org.allofus.curation.utils.Constants.Env.*;
 
@@ -121,7 +121,7 @@ public class BigQueryWriteTest extends TestCase {
     json_row_1.put("note_nlp_source_concept_id", "100");
     json_row_1.put("nlp_system", "CLAMP 1.7.2");
     json_row_1.put("nlp_date", "2022-01-01");
-    json_row_1.put("nlp_datetime", "2022-01-01 05:10:10");
+    json_row_1.put("nlp_datetime", "2022-01-01 10:10:10");
     json_row_1.put("term_exists", "False");
     json_row_1.put("term_temporal", "1 year");
     json_row_1.put("term_modifiers", "TermModifier");
@@ -138,7 +138,7 @@ public class BigQueryWriteTest extends TestCase {
     json_row_2.put("note_nlp_source_concept_id", "100");
     json_row_2.put("nlp_system", "CLAMP 1.7.2");
     json_row_2.put("nlp_date", "2022-01-01");
-    json_row_2.put("nlp_datetime", "2022-01-01 05:10:10");
+    json_row_2.put("nlp_datetime", "2022-01-01 10:10:10");
     json_row_2.put("term_exists", "False");
     json_row_2.put("term_temporal", "1 year");
     json_row_2.put("term_modifiers", "TermModifier");
@@ -167,13 +167,11 @@ public class BigQueryWriteTest extends TestCase {
     for (FieldValueList tableRow : result.iterateAll()) {
       JSONObject row = new JSONObject();
       for (Schema.Field field : note_nlp_schema.getFields()) {
-        if (field.getName() == "nlp_datetime") {
-          DateFormat datetimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-          Date datetime =
-              new Date(
-                  (long)
-                      (Double.parseDouble(tableRow.get(field.getName()).getStringValue()) * 1000));
-          row.put(field.getName(), datetimeFormat.format(datetime));
+        if (Objects.equals(field.getName(), "nlp_datetime")) {
+          long epoch = Double.valueOf(tableRow.get(field.getName()).getStringValue()).longValue();
+          ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(epoch), ZoneOffset.UTC);
+          DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+          row.put(field.getName(), zonedDateTime.format(formatter));
         } else {
           row.put(field.getName(), tableRow.get(field.getName()).getStringValue());
         }
