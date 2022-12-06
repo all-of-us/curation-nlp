@@ -89,10 +89,9 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
     rxNormIndex = new File(rxNormIndexDir);
     pipelineJar = new File(pipeline_file);
 
-    List<DocProcessor> pipeline;
-    pipeline = ConfigUtil.importPipelineFromJar(pipelineJar);
+    List<DocProcessor> pipeline_list = ConfigUtil.importPipelineFromJar(pipelineJar);
 
-    for (DocProcessor proc : pipeline) {
+    for (DocProcessor proc : pipeline_list) {
       if (proc instanceof UmlsEncoderUIMA) {
         ((UmlsEncoderUIMA) proc).setIndexDir(umlsIndex);
         procList.add(proc);
