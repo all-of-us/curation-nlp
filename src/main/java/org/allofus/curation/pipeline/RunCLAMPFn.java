@@ -24,16 +24,12 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
 
-  private static final ReentrantLock INIT_MUTEX_LOCK = new ReentrantLock();
   private static final Logger LOG = LoggerFactory.getLogger(RunCLAMPFn.class);
-  private static final List<DocProcessor> procList = new ArrayList<>();
+  private final List<DocProcessor> procList = new ArrayList<>();
   static Schema output_schema = NLPSchema.getNoteNLPSchema();
   private static Map<String, String> attrMap = new HashMap<String, String>();
   File outPath;

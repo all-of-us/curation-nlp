@@ -20,6 +20,8 @@ import static org.allofus.curation.utils.Constants.Env.*;
 
 public class BigQueryReadTest extends TestCase {
 
+  String input_table = PROJECT_ID + "." + TEST_DATASET + "." + TEST_INPUT_TABLE;
+
   public void testReadBQ() {
     String gcpTempLocation = "gs://" + TEST_BUCKET + "/bq_tmp";
     String[] args = new String[] {"--project=" + PROJECT_ID, "--tempLocation=" + gcpTempLocation};
@@ -36,7 +38,7 @@ public class BigQueryReadTest extends TestCase {
     cr.registerCoderForClass(Float.class, DoubleCoder.of());
 
     IORead ioRead = IOReadFactory.create(input_type);
-    ioRead.init(PROJECT_ID + "." + TEST_DATASET + "." + TEST_INPUT_TABLE, input_type);
+    ioRead.init(input_table, input_type);
 
     PCollection<Row> actual = p.apply(ioRead).setRowSchema(note_schema);
 
