@@ -17,7 +17,7 @@
 
         <java8.version>1.8</java8.version>
         <slf4j.version>2.0.0</slf4j.version>
-        <beam.version>2.38.0</beam.version>
+        <beam.version>2.42.0</beam.version>
         <maven.version>3.8.1</maven.version>
         <maven-jar-plugin.version>3.2.1</maven-jar-plugin.version>
         <maven-exec-plugin.version>3.0.0</maven-exec-plugin.version>
@@ -246,7 +246,7 @@
             <dependency>
                 <groupId>com.google.cloud</groupId>
                 <artifactId>libraries-bom</artifactId>
-                <version>19.2.1</version>
+                <version>26.1.5</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -257,13 +257,11 @@
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-bigquery</artifactId>
-            <version>${bigquery.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-bigquerystorage</artifactId>
-            <version>${bigquerystorage.version}</version>
         </dependency>
 
         <dependency>
@@ -282,6 +280,14 @@
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-runners-direct-java</artifactId>
+            <version>${beam.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- The DataflowRunner is needed for unit tests. -->
+        <dependency>
+            <groupId>org.apache.beam</groupId>
+            <artifactId>beam-runners-google-cloud-dataflow-java</artifactId>
             <version>${beam.version}</version>
             <scope>test</scope>
         </dependency>
@@ -312,36 +318,42 @@
             <version>${hamcrest.version}</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>com.shazam</groupId>
             <artifactId>shazamcrest</artifactId>
             <version>${shazamcrest.version}</version>
+            <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
             <version>${gson.version}</version>
         </dependency>
+
         <dependency>
             <groupId>com.google.api-client</groupId>
             <artifactId>google-api-client</artifactId>
             <version>${google-api.version}</version>
         </dependency>
+
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-storage</artifactId>
-            <version>${google-storage.version}</version>
         </dependency>
+
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>${guava.version}</version>
         </dependency>
+
         <dependency>
             <groupId>edu.uth.clamp</groupId>
             <artifactId>clamp-nlp</artifactId>
             <version>${clamp.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-csv</artifactId>

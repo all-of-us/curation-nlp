@@ -22,6 +22,9 @@ aliases:
         export GOOGLE_APPLICATION_CREDENTIALS=./gcloud_key.json
         echo "GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS" >> ./env
         echo "TEST_BUCKET=$TEST_BUCKET" >> ./env
+        echo "TEST_DATASET=$TEST_DATASET" >> ./env
+        echo "TEST_INPUT_TABLE=$TEST_INPUT_TABLE" >> ./env
+        echo "TEST_OUTPUT_TABLE=$TEST_OUTPUT_TABLE" >> ./env
         echo "PROJECT_ID=$PROJECT_ID" >> ./env
         echo "PRIVATE_CLAMP_REPO_URL=$PRIVATE_CLAMP_REPO_URL" >> ./env
         echo "ARTIFACT_REGISTRY_CLAMP_NLP_USERNAME=$ARTIFACT_REGISTRY_CLAMP_NLP_USERNAME" >> ./env

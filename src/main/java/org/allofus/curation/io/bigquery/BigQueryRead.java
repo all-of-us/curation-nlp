@@ -1,21 +1,38 @@
 package org.allofus.curation.io.bigquery;
 
 import com.google.api.services.bigquery.model.TableRow;
+import com.google.cloud.bigquery.BigQuery;
+import com.google.cloud.bigquery.BigQueryOptions;
 import org.allofus.curation.io.factory.IORead;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
+import org.apache.beam.sdk.schemas.SchemaCoder;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.transforms.Reshuffle;
 import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.Row;
+import org.apache.commons.lang.math.NumberUtils;
 
 public class BigQueryRead extends IORead {
+
+  static BigQuery bigquery;
+
+  public void init() {
+    bigquery = BigQueryOptions.getDefaultInstance().getService();
+  }
 
   @Override
   public PCollection<Row> expand(PBegin input) {
     return input
-        .apply(BigQueryIO.readTableRows().from(input_pattern))
-        .apply(ParDo.of(new BQToRow()));
+        .apply(
+            BigQueryIO.readTableRows()
+                .fromQuery(String.format("SELECT * FROM " + input_pattern))
+                .usingStandardSql())
+        .apply(Reshuffle.viaRandomKey())
+        .apply(ParDo.of(new BQToRow()))
+        .setRowSchema(input_schema)
+        .setCoder(SchemaCoder.of(input_schema));
   }
 
   public static class BQToRow extends DoFn<TableRow, Row> {
@@ -23,19 +40,19 @@ public class BigQueryRead extends IORead {
     public void processElement(@Element TableRow tableRow, OutputReceiver<Row> receiver) {
       Row output =
           Row.withSchema(input_schema)
-              .addValue(tableRow.get("note_id"))
-              .addValue(tableRow.get("person_id"))
+              .addValue(NumberUtils.toLong(tableRow.get("note_id").toString()))
+              .addValue(NumberUtils.toLong(tableRow.get("person_id").toString()))
               .addValue(tableRow.get("note_date"))
               .addValue(tableRow.get("note_datetime"))
-              .addValue(tableRow.get("note_type_concept_id"))
-              .addValue(tableRow.get("note_class_concept_id"))
+              .addValue(NumberUtils.toLong(tableRow.get("note_type_concept_id").toString()))
+              .addValue(NumberUtils.toLong(tableRow.get("note_class_concept_id").toString()))
               .addValue(tableRow.get("note_title"))
               .addValue(tableRow.get("note_text"))
-              .addValue(tableRow.get("encoding_concept_id"))
-              .addValue(tableRow.get("language_concept_id"))
-              .addValue(tableRow.get("provider_id"))
-              .addValue(tableRow.get("visit_occurrence_id"))
-              .addValue(tableRow.get("visit_detail_id"))
+              .addValue(NumberUtils.toLong(tableRow.get("encoding_concept_id").toString()))
+              .addValue(NumberUtils.toLong(tableRow.get("language_concept_id").toString()))
+              .addValue(NumberUtils.toLong(tableRow.get("provider_id").toString()))
+              .addValue(NumberUtils.toLong(tableRow.get("visit_occurrence_id").toString()))
+              .addValue(NumberUtils.toLong(tableRow.get("visit_detail_id").toString()))
               .addValue(tableRow.get("note_source_value"))
               .build();
       receiver.output(output);

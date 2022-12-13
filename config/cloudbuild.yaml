@@ -23,12 +23,19 @@ steps:
           -Dexec.mainClass="org.allofus.curation.pipeline.CurationNLPMain" \
           -Dexec.args="--project=${PROJECT_ID} \
             --gcpTempLocation=$${LOCATION}/tmp \
+            --stagingLocation=$${LOCATION}/staging \
+            --tempLocation=$${LOCATION}/bq_tmp \
             --runner=DataflowRunner \
-            --input=$${LOCATION}/input/* \
-            --output=$${LOCATION}/output \
+            --input=${PROJECT_ID}.clamp_test.note_test \
+            --output=${PROJECT_ID}.clamp_test.note_nlp_test \
+            --pipeline=clinical_pipeline.pipeline.jar \
+            --resourcesDir=$${LOCATION}/resources \
+            --inputType=bigquery \
+            --outputType=bigquery \
             --subnetwork=$${SUBNET} \
             --maxNumWorkers=5 \
             --buildId=${BUILD_ID}_${SHORT_SHA} \
+            --usePublicIps=false \
             --region=us-central1" \
           -Pdataflow-runner -P dataflow
     secretEnv: ['LOCATION', 'SUBNET']
