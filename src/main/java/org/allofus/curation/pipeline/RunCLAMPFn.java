@@ -78,7 +78,6 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
 
     @Setup
     public void init() throws IOException, ConfigurationException, DocumentIOException {
-
       List<DocProcessor> pipeline;
 
       // If resources in google bucket, download them
@@ -140,8 +139,12 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
           }
         }
         Date date = new Date();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         String nlpDate = dateFormat.format(date);
+        SimpleDateFormat datetimeFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        String nlpDatetime = datetimeFormat.format(date);
+
         int sec_id = 0;
         for (ClampSection sec : doc.getSections()) {
           for (ClampNameEntity cne : doc.getNameEntity()) {
@@ -159,7 +162,7 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
                 .addValue((long) getNoteNlpConceptId(cne))
                 .addValue("CLAMP 1.7.2")
                 .addValue(nlpDate)
-                .addValue(nlpDate)
+                .addValue(nlpDatetime)
                 .addValue(te)
                 .addValue(tmp)
                 .addValue(tm)
