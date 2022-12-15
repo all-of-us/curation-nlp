@@ -29,7 +29,7 @@ public class StorageTmp {
 
   public String StoreTmpFile(String pipeline_file) throws IOException {
     Path pipeline_path = Files.createTempFile("pipeline", ".jar");
-    pipeline_path.toFile().deleteOnExit();
+    // pipeline_path.toFile().deleteOnExit();
     pipeline_file = resources + "/" + pipeline_file;
     Blob blob = storage.get(BlobId.of(bucket, pipeline_file));
     blob.downloadTo(pipeline_path);
@@ -45,7 +45,7 @@ public class StorageTmp {
       if (!blob_name.endsWith("/")) {
         blob_name = blob_name.substring(blob.getName().lastIndexOf("/"));
         File file_path = new File(dict_path + blob_name);
-        file_path.deleteOnExit();
+        // file_path.deleteOnExit();
         blob.downloadTo(file_path.toPath());
       }
     }

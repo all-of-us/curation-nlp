@@ -24,12 +24,16 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
 
+  private static final ReentrantLock INIT_MUTEX_LOCK = new ReentrantLock();
   private static final Logger LOG = LoggerFactory.getLogger(RunCLAMPFn.class);
-  private final List<DocProcessor> procList = new ArrayList<>();
+  private static final List<DocProcessor> procList = new ArrayList<>();
   static Schema output_schema = NLPSchema.getNoteNLPSchema();
   private static Map<String, String> attrMap = new HashMap<String, String>();
   File outPath;
@@ -41,7 +45,6 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
   String umlsIndexDir;
   String rxNormIndexDir;
   String pipeline_file;
-  List<DocProcessor> pipeline_list;
 
   @Override
   public PCollection<Row> expand(PCollection<Row> input) {
@@ -51,7 +54,7 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
         .setCoder(SchemaCoder.of(output_schema));
   }
 
-  public void init_clamp(CurationNLPOptions options) throws IOException, ConfigurationException, DocumentIOException {
+  public void init_clamp(CurationNLPOptions options) throws IOException {
     // Set output dir
     String outDir = options.getOutput();
     this.outPath = new File(outDir);
@@ -69,42 +72,57 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
     umlsIndexDir = primaryIndexDir + "umls_index";
     rxNormIndexDir = primaryIndexDir + "rxnorm_index";
 
-    // If resources in google bucket, download them
-    if (resources_dir.startsWith("gs")) {
-      StorageTmp stmp = new StorageTmp(resources_dir);
-      umlsIndexDir = stmp.StoreTmpDir(umlsIndexDir.substring(1));
-      rxNormIndexDir = stmp.StoreTmpDir(rxNormIndexDir.substring(1));
-      pipeline_file = stmp.StoreTmpFile(pipeline_file.substring(1));
-    } else {
-      umlsIndexDir = resources_dir + umlsIndexDir;
-      rxNormIndexDir = resources_dir + rxNormIndexDir;
-      pipeline_file = resources_dir + pipeline_file;
-    }
-
-    // Use files
-    umlsIndex = new File(umlsIndexDir);
-    rxNormIndex = new File(rxNormIndexDir);
-    pipelineJar = new File(pipeline_file);
-
-    pipeline_list = ConfigUtil.importPipelineFromJar(pipelineJar);
-
-    for (DocProcessor proc : pipeline_list) {
-      if (proc instanceof UmlsEncoderUIMA) {
-        ((UmlsEncoderUIMA) proc).setIndexDir(umlsIndex);
-        procList.add(proc);
-      } else if (proc instanceof RxNormEncoderUIMA) {
-        ((RxNormEncoderUIMA) proc).setIndex(rxNormIndexDir);
-        procList.add(proc);
-      } else if (proc instanceof MaxMatchingUmlsEncoderCovid) {
-        ((MaxMatchingUmlsEncoderCovid) proc).setIndexDir(umlsIndexDir);
-        procList.add(proc);
-      } else {
-        procList.add(proc);
-      }
-    }
   }
 
   public class RunCLAMPSingleFn extends DoFn<Row, Row> {
+
+    @Setup
+    public void init() throws IOException, ConfigurationException, DocumentIOException {
+      List<DocProcessor> pipeline;
+
+      // If resources in google bucket, download them
+      if (resources_dir.startsWith("gs")) {
+        StorageTmp stmp = new StorageTmp(resources_dir);
+        umlsIndexDir = stmp.StoreTmpDir(umlsIndexDir.substring(1));
+        rxNormIndexDir = stmp.StoreTmpDir(rxNormIndexDir.substring(1));
+        pipeline_file = stmp.StoreTmpFile(pipeline_file.substring(1));
+      } else {
+        umlsIndexDir = resources_dir + umlsIndexDir;
+        rxNormIndexDir = resources_dir + rxNormIndexDir;
+        pipeline_file = resources_dir + pipeline_file;
+      }
+
+      // Use files
+      umlsIndex = new File(umlsIndexDir);
+      rxNormIndex = new File(rxNormIndexDir);
+      pipelineJar = new File(pipeline_file);
+      Instant start = Instant.now();
+      try {
+        INIT_MUTEX_LOCK.lock();
+        // load pipelines;
+        pipeline = ConfigUtil.importPipelineFromJar(pipelineJar);
+
+        for (DocProcessor proc : pipeline) {
+          if (proc instanceof UmlsEncoderUIMA) {
+            ((UmlsEncoderUIMA) proc).setIndexDir(umlsIndex);
+            procList.add(proc);
+          } else if (proc instanceof RxNormEncoderUIMA) {
+            ((RxNormEncoderUIMA) proc).setIndex(rxNormIndexDir);
+            procList.add(proc);
+          } else if (proc instanceof MaxMatchingUmlsEncoderCovid) {
+            ((MaxMatchingUmlsEncoderCovid) proc).setIndexDir(umlsIndexDir);
+            procList.add(proc);
+          } else {
+            procList.add(proc);
+          }
+        }
+      } finally {
+        INIT_MUTEX_LOCK.unlock();
+      }
+      Instant end = Instant.now();
+      Duration timeElapsed = Duration.between(start, end);
+      LOG.info("init CLAMP: Time taken: " + timeElapsed.toMillis() + " milliseconds");
+    }
 
     @ProcessElement
     public void processElement(@Element Row input, OutputReceiver<Row> receiver) {
@@ -121,31 +139,34 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
           }
         }
         Date date = new Date();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         String nlpDate = dateFormat.format(date);
+        SimpleDateFormat datetimeFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        String nlpDatetime = datetimeFormat.format(date);
+
         int sec_id = 0;
         for (ClampSection sec : doc.getSections()) {
           for (ClampNameEntity cne : doc.getNameEntity()) {
             String tmp = getTermTemporal(doc, cne);
             String te = getTermExists(cne);
             String tm = getTermModifiers(cne);
-            Row out =
-                Row.withSchema(output_schema)
-                    .addValue(0L)
-                    .addValue(input.getValue("note_id"))
-                    .addValue((long) sec_id)
-                    .addValue(getSnippet(doc, sec, cne))
-                    .addValue(getOffset(cne))
-                    .addValue(getLexicalVariant(cne))
-                    .addValue((long) getNoteNlpConceptId(cne))
-                    .addValue((long) getNoteNlpConceptId(cne))
-                    .addValue("CLAMP 1.7.2")
-                    .addValue(nlpDate)
-                    .addValue(nlpDate)
-                    .addValue(te)
-                    .addValue(tmp)
-                    .addValue(tm)
-                    .build();
+            Row out = Row.withSchema(output_schema)
+                .addValue(0L)
+                .addValue(input.getValue("note_id"))
+                .addValue((long) sec_id)
+                .addValue(getSnippet(doc, sec, cne))
+                .addValue(getOffset(cne))
+                .addValue(getLexicalVariant(cne))
+                .addValue((long) getNoteNlpConceptId(cne))
+                .addValue((long) getNoteNlpConceptId(cne))
+                .addValue("CLAMP 1.7.2")
+                .addValue(nlpDate)
+                .addValue(nlpDatetime)
+                .addValue(te)
+                .addValue(tmp)
+                .addValue(tm)
+                .build();
             receiver.output(out);
           }
           sec_id++;
@@ -234,8 +255,7 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
       }
       term_modifiers = new StringBuilder(term_modifiers.toString().trim());
       if (term_modifiers.toString().endsWith(",")) {
-        term_modifiers =
-            new StringBuilder(term_modifiers.substring(0, term_modifiers.length() - 1));
+        term_modifiers = new StringBuilder(term_modifiers.substring(0, term_modifiers.length() - 1));
       }
 
       return term_modifiers.toString();
