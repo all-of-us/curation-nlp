@@ -32,6 +32,7 @@ public class BigQueryWrite extends IOWrite {
                 .to(String.format(output_sink))
                 .withJsonSchema(jsonString)
                 .ignoreInsertIds()
+                .withNumStorageWriteApiStreams(10)
                 .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_IF_NEEDED)
                 .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_APPEND));
     return PDone.in(input.getPipeline());
