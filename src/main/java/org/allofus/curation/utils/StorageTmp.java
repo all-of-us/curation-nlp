@@ -23,7 +23,7 @@ public class StorageTmp {
   public StorageTmp(String resources_dir) {
     String[] bucket_parts = resources_dir.substring(5).split("/", 2);
     bucket = bucket_parts[0];
-    resources = resources_dir.substring(5).substring(bucket.length()).substring(1);
+    resources = bucket_parts[1];
     storage = StorageOptions.getDefaultInstance().getService();
   }
 
