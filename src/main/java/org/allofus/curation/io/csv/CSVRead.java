@@ -26,7 +26,6 @@ public class CSVRead extends IORead {
   static final Logger LOG = LoggerFactory.getLogger(CSVRead.class);
 
   public PCollection<Row> expand(PBegin input) {
-    System.out.println("CSVRead: expand...");
     return input
         .apply(FileIO.match().filepattern(input_pattern))
         .apply(FileIO.readMatches())
