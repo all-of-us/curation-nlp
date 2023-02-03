@@ -26,7 +26,6 @@ public class CSVRead extends IORead {
   static final Logger LOG = LoggerFactory.getLogger(CSVRead.class);
 
   public PCollection<Row> expand(PBegin input) {
-    System.out.println("CSVRead: expand...");
     return input
         .apply(FileIO.match().filepattern(input_pattern))
         .apply(FileIO.readMatches())
@@ -44,8 +43,8 @@ public class CSVRead extends IORead {
         throws IOException {
       InputStream is = Channels.newInputStream(element.open());
       Reader reader = new InputStreamReader(is, StandardCharsets.UTF_8);
-      Iterable<CSVRecord> records =
-          CSVFormat.DEFAULT.withHeader().withDelimiter(',').withFirstRecordAsHeader().parse(reader);
+      Iterable<CSVRecord> records = CSVFormat.DEFAULT.withHeader().withDelimiter(',').withFirstRecordAsHeader()
+          .parse(reader);
       for (CSVRecord record : records) {
         receiver.output(record);
       }
@@ -55,23 +54,22 @@ public class CSVRead extends IORead {
   public static class CSVToRow extends DoFn<CSVRecord, Row> {
     @ProcessElement
     public void processElement(@Element CSVRecord element, OutputReceiver<Row> receiver) {
-      Row output =
-          Row.withSchema(input_schema)
-              .addValue(NumberUtils.toLong(element.get(0)))
-              .addValue(NumberUtils.toLong(element.get(1)))
-              .addValue(element.get(2))
-              .addValue(element.get(3))
-              .addValue(NumberUtils.toLong(element.get(4)))
-              .addValue(NumberUtils.toLong(element.get(5)))
-              .addValue(element.get(6))
-              .addValue(element.get(7))
-              .addValue(NumberUtils.toLong(element.get(8)))
-              .addValue(NumberUtils.toLong(element.get(9)))
-              .addValue(NumberUtils.toLong(element.get(10)))
-              .addValue(NumberUtils.toLong(element.get(11)))
-              .addValue(NumberUtils.toLong(element.get(12)))
-              .addValue(element.get(13))
-              .build();
+      Row output = Row.withSchema(input_schema)
+          .addValue(NumberUtils.toLong(element.get(0)))
+          .addValue(NumberUtils.toLong(element.get(1)))
+          .addValue(element.get(2))
+          .addValue(element.get(3))
+          .addValue(NumberUtils.toLong(element.get(4)))
+          .addValue(NumberUtils.toLong(element.get(5)))
+          .addValue(element.get(6))
+          .addValue(element.get(7))
+          .addValue(NumberUtils.toLong(element.get(8)))
+          .addValue(NumberUtils.toLong(element.get(9)))
+          .addValue(NumberUtils.toLong(element.get(10)))
+          .addValue(NumberUtils.toLong(element.get(11)))
+          .addValue(NumberUtils.toLong(element.get(12)))
+          .addValue(element.get(13))
+          .build();
       receiver.output(output);
     }
   }

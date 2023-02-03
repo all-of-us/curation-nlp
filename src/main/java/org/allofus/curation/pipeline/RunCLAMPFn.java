@@ -136,11 +136,9 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
 
     @ProcessElement
     public void processElement(@Element Row input, OutputReceiver<Row> receiver) {
-      System.out.println("RunCLAMPSingleFn: processElement...");
       try {
         String note_id = Objects.requireNonNull(input.getValue("note_id")).toString();
         String text = input.getValue("note_text");
-        System.out.println("processElement: " + text);
         Document doc = new Document(note_id, text);
         for (DocProcessor proc : procList) {
           try {
@@ -150,8 +148,7 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
             e.printStackTrace();
           }
         }
-        System.out.println("note_id: " + note_id + " cne count: " + String.valueOf(doc.getNameEntity().size())
-            + " text: " + doc.getFileContent());
+
         Date date = new Date();
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
