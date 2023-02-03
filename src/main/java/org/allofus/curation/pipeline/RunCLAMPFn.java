@@ -89,7 +89,7 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
         rxNormIndexDir = resources_dir + rxNormIndexDir;
         pipeline_file = resources_dir + pipeline_file;
       }
-  
+
       // Use files
       umlsIndex = new File(umlsIndexDir);
       rxNormIndex = new File(rxNormIndexDir);
@@ -99,7 +99,7 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
         INIT_MUTEX_LOCK.lock();
         // load pipelines;
         pipeline = ConfigUtil.importPipelineFromJar(pipelineJar);
-  
+
         for (DocProcessor proc : pipeline) {
           if (proc instanceof UmlsEncoderUIMA) {
             ((UmlsEncoderUIMA) proc).setIndexDir(umlsIndex);
