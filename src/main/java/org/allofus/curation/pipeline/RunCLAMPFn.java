@@ -71,15 +71,13 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
     String primaryIndexDir = "/index/";
     umlsIndexDir = primaryIndexDir + "umls_index";
     rxNormIndexDir = primaryIndexDir + "rxnorm_index";
-
   }
 
-  public class RunCLAMPSingleFn extends DoFn<Row, Row> {
 
+  public class RunCLAMPSingleFn extends DoFn<Row, Row> { 
     @Setup
     public void init() throws IOException, ConfigurationException, DocumentIOException {
       List<DocProcessor> pipeline;
-
       // If resources in google bucket, download them
       if (resources_dir.startsWith("gs")) {
         StorageTmp stmp = new StorageTmp(resources_dir);
@@ -129,6 +127,7 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
       try {
         String note_id = Objects.requireNonNull(input.getValue("note_id")).toString();
         String text = input.getValue("note_text");
+        System.out.println("processElement: "+text);
         Document doc = new Document(note_id, text);
         for (DocProcessor proc : procList) {
           try {
@@ -145,31 +144,30 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
         SimpleDateFormat datetimeFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         String nlpDatetime = datetimeFormat.format(date);
 
-        int sec_id = 0;
-        for (ClampSection sec : doc.getSections()) {
-          for (ClampNameEntity cne : doc.getNameEntity()) {
-            String tmp = getTermTemporal(doc, cne);
-            String te = getTermExists(cne);
-            String tm = getTermModifiers(cne);
-            Row out = Row.withSchema(output_schema)
-                .addValue(0L)
-                .addValue(input.getValue("note_id"))
-                .addValue((long) sec_id)
-                .addValue(getSnippet(doc, sec, cne))
-                .addValue(getOffset(cne))
-                .addValue(getLexicalVariant(cne))
-                .addValue((long) getNoteNlpConceptId(cne))
-                .addValue((long) getNoteNlpConceptId(cne))
-                .addValue("CLAMP 1.7.2")
-                .addValue(nlpDate)
-                .addValue(nlpDatetime)
-                .addValue(te)
-                .addValue(tmp)
-                .addValue(tm)
-                .build();
-            receiver.output(out);
-          }
-          sec_id++;
+        for (ClampNameEntity cne : doc.getNameEntity()) {
+          String tmp = getTermTemporal(doc, cne);
+          String te = getTermExists(cne);
+          String tm = getTermModifiers(doc, cne);
+          String snippet = getSnippet(doc, cne);
+          String offset = getOffset(cne);
+          int sec_id = getSectionId(doc, cne);
+          Row out = Row.withSchema(output_schema)
+              .addValue(0L)
+              .addValue(input.getValue("note_id"))
+              .addValue((long) sec_id)
+              .addValue(snippet)
+              .addValue(offset)
+              .addValue(getLexicalVariant(cne))
+              .addValue((long) getNoteNlpConceptId(cne))
+              .addValue((long) getNoteNlpConceptId(cne))
+              .addValue("CLAMP 1.7.5")
+              .addValue(nlpDate)
+              .addValue(nlpDatetime)
+              .addValue(te)
+              .addValue(tmp)
+              .addValue(tm)
+              .build();
+          receiver.output(out);
         }
         LOG.info("Processed document " + note_id);
       } catch (Exception e) {
@@ -178,19 +176,27 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
       }
     }
 
+    private int getSectionId(Document doc, ClampNameEntity cne) {
+      int sec_id = 0;
+      for (ClampSection sec: doc.getSections()) {
+        if ((cne.getBegin() >= sec.getBegin()) && (cne.getEnd() < cne.getEnd())) {
+              break;
+        }
+        sec_id = sec_id + 1;
+      }
+      return sec_id;
+    }
+
     private int getSectionConceptId(ClampSection sec) {
       return Integer.parseInt(sec.getSectionName());
     }
 
-    private String getSnippet(Document doc, ClampSection sec, ClampNameEntity cne) {
+    private String getSnippet(Document doc, ClampNameEntity cne) {
       int s = cne.getBegin();
       int e = cne.getEnd();
-      s = Math.max(sec.getBegin(), s);
-      e = Math.min(sec.getEnd(), e);
       StringBuilder snippet = new StringBuilder();
-      for (ClampToken t : XmiUtil.selectToken(doc.getJCas(), s, e)) {
-        snippet.append(t.textStr()).append(" ");
-      }
+      snippet.append(doc.getFileContent(), s, e);
+
       snippet = new StringBuilder(snippet.toString().trim());
       return snippet.toString();
     }
@@ -222,9 +228,8 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
       }
       return String.valueOf(term_exists);
     }
-
-    private String getTermTemporal(Document doc, ClampNameEntity cne) {
-      String term_temporal = "";
+    private Map<String, String> getAttrMap(Document doc, ClampNameEntity cne) {
+      Map<String, String> attrMap = new HashMap<String, String>();
       for (ClampRelation rel : doc.getRelations()) {
         ClampNameEntity t = null;
         if (rel.getEntFrom().getUimaEnt().equals(cne.getUimaEnt())) {
@@ -242,13 +247,20 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
         attrMap.putIfAbsent(k, "");
         attrMap.put(k, (attrMap.get(k) + " " + t.textStr()).trim());
       }
+      return attrMap;
+    }
+
+    private String getTermTemporal(Document doc, ClampNameEntity cne) {
+      String term_temporal = "";
+      attrMap = getAttrMap(doc, cne);
       if (attrMap.containsKey("temporal")) {
         term_temporal = attrMap.get("temporal");
       }
       return term_temporal;
     }
 
-    private String getTermModifiers(ClampNameEntity cne) {
+    private String getTermModifiers(Document doc, ClampNameEntity cne) {
+      attrMap = getAttrMap(doc, cne);
       StringBuilder term_modifiers = new StringBuilder();
       for (String k : attrMap.keySet()) {
         term_modifiers.append(k).append("=[").append(attrMap.get(k)).append("], ");
