@@ -80,10 +80,10 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
 
   public class RunCLAMPSingleFn extends DoFn<Row, Row> {
     private final List<DocProcessor> procList = new ArrayList<>();
+
     @Setup
     public void init() throws IOException, ConfigurationException, DocumentIOException {
       List<DocProcessor> pipeline;
-
       // If resources in google bucket, download them
       if (resources_dir.startsWith("gs")) {
         StorageTmp stmp = new StorageTmp(resources_dir);
@@ -100,7 +100,7 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
 
       // Use files
       umlsIndex = new File(umlsIndexDir);
-      rxNormIndex = new File(rxNormIndexDir);  
+      rxNormIndex = new File(rxNormIndexDir);
       omopIndex = new File(omopIndexDir);
       pipelineJar = new File(pipeline_file);
       Instant start = Instant.now();
@@ -140,7 +140,7 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
       try {
         String note_id = Objects.requireNonNull(input.getValue("note_id")).toString();
         String text = input.getValue("note_text");
-        System.out.println("processElement: "+text);
+        System.out.println("processElement: " + text);
         Document doc = new Document(note_id, text);
         for (DocProcessor proc : procList) {
           try {
@@ -150,7 +150,8 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
             e.printStackTrace();
           }
         }
-        System.out.println("note_id: " + note_id + " cne count: " + String.valueOf(doc.getNameEntity().size()) + " text: " + doc.getFileContent());
+        System.out.println("note_id: " + note_id + " cne count: " + String.valueOf(doc.getNameEntity().size())
+            + " text: " + doc.getFileContent());
         Date date = new Date();
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -159,7 +160,6 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
         String nlpDatetime = datetimeFormat.format(date);
 
         for (ClampNameEntity cne : doc.getNameEntity()) {
-          //attrMap = getAttrMap(doc, cne);
           String tmp = getTermTemporal(doc, cne);
           String te = getTermExists(cne);
           String tm = getTermModifiers(doc, cne);
@@ -167,7 +167,6 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
           String offset = getOffset(cne);
           int sec_id = getSectionId(doc, cne);
           int concept_id = getNoteNlpConceptId(cne);
-          System.out.println("note_id: " + note_id + " sec_id: " + String.valueOf(sec_id) + " offset: " + offset + "concept_id: " + String.valueOf(concept_id) + " tmp: " + tmp + " tm: " + tm + " snippet: " + snippet);
 
           Row out = Row.withSchema(output_schema)
               .addValue(0L)
@@ -176,8 +175,8 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
               .addValue(snippet)
               .addValue(offset)
               .addValue(getLexicalVariant(cne))
-              .addValue((long) concept_id)
-              .addValue((long) concept_id)
+              .addValue((long) getNoteNlpConceptId(cne))
+              .addValue((long) getNoteNlpConceptId(cne))
               .addValue("CLAMP 1.7.5")
               .addValue(nlpDate)
               .addValue(nlpDatetime)
@@ -196,9 +195,9 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
 
     private int getSectionId(Document doc, ClampNameEntity cne) {
       int sec_id = 0;
-      for (ClampSection sec: doc.getSections()) {
+      for (ClampSection sec : doc.getSections()) {
         if ((cne.getBegin() >= sec.getBegin()) && (cne.getEnd() < cne.getEnd())) {
-              break;
+          break;
         }
         sec_id = sec_id + 1;
       }
@@ -213,7 +212,8 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
       int s = cne.getBegin();
       int e = cne.getEnd();
       StringBuilder snippet = new StringBuilder();
-      snippet.append(doc.getFileContent().substring(s, e));
+      snippet.append(doc.getFileContent(), s, e);
+
       snippet = new StringBuilder(snippet.toString().trim());
       return snippet.toString();
     }
@@ -228,7 +228,7 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
 
     private int getNoteNlpConceptId(ClampNameEntity cne) {
       try {
-        return (int)((encoder.encode(cne.textStr(), cne.getSemanticTag() )).getConcept_id());
+        return (int) ((encoder.encode(cne.textStr(), cne.getSemanticTag())).getConcept_id());
       } catch (Exception e) {
         return 0;
       }
@@ -280,7 +280,6 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
       }
       return term_temporal;
     }
-
 
     private String getTermModifiers(Document doc, ClampNameEntity cne) {
       attrMap = getAttrMap(doc, cne);
