@@ -7,6 +7,7 @@ import edu.uth.clamp.nlp.encoding.MaxMatchingUmlsEncoderCovid;
 import edu.uth.clamp.nlp.encoding.RxNormEncoderUIMA;
 import edu.uth.clamp.nlp.structure.*;
 import edu.uth.clamp.nlp.uima.UmlsEncoderUIMA;
+import edu.uth.clamp.nlp.omop.OMOPEncoder;
 import org.allofus.curation.utils.NLPSchema;
 import org.allofus.curation.utils.SanitizeInput;
 import org.allofus.curation.utils.StorageTmp;
@@ -33,17 +34,19 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
 
   private static final ReentrantLock INIT_MUTEX_LOCK = new ReentrantLock();
   private static final Logger LOG = LoggerFactory.getLogger(RunCLAMPFn.class);
-  private static final List<DocProcessor> procList = new ArrayList<>();
   static Schema output_schema = NLPSchema.getNoteNLPSchema();
   private static Map<String, String> attrMap = new HashMap<String, String>();
+  private static OMOPEncoder encoder;
   File outPath;
   String resources_dir;
   String pipeline;
   File umlsIndex;
   File rxNormIndex;
+  File omopIndex;
   File pipelineJar;
   String umlsIndexDir;
   String rxNormIndexDir;
+  String omopIndexDir;
   String pipeline_file;
 
   @Override
@@ -71,10 +74,13 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
     String primaryIndexDir = "/index/";
     umlsIndexDir = primaryIndexDir + "umls_index";
     rxNormIndexDir = primaryIndexDir + "rxnorm_index";
+    omopIndexDir = primaryIndexDir + "omop_index";
+
   }
 
+  public class RunCLAMPSingleFn extends DoFn<Row, Row> {
+    private final List<DocProcessor> procList = new ArrayList<>();
 
-  public class RunCLAMPSingleFn extends DoFn<Row, Row> { 
     @Setup
     public void init() throws IOException, ConfigurationException, DocumentIOException {
       List<DocProcessor> pipeline;
@@ -83,16 +89,19 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
         StorageTmp stmp = new StorageTmp(resources_dir);
         umlsIndexDir = stmp.StoreTmpDir(umlsIndexDir.substring(1));
         rxNormIndexDir = stmp.StoreTmpDir(rxNormIndexDir.substring(1));
+        omopIndexDir = stmp.StoreTmpDir(omopIndexDir.substring(1));
         pipeline_file = stmp.StoreTmpFile(pipeline_file.substring(1));
       } else {
         umlsIndexDir = resources_dir + umlsIndexDir;
         rxNormIndexDir = resources_dir + rxNormIndexDir;
         pipeline_file = resources_dir + pipeline_file;
+        omopIndexDir = resources_dir + omopIndexDir;
       }
 
       // Use files
       umlsIndex = new File(umlsIndexDir);
       rxNormIndex = new File(rxNormIndexDir);
+      omopIndex = new File(omopIndexDir);
       pipelineJar = new File(pipeline_file);
       Instant start = Instant.now();
       try {
@@ -117,6 +126,9 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
       } finally {
         INIT_MUTEX_LOCK.unlock();
       }
+      encoder = new OMOPEncoder();
+      encoder.setIndexDir(omopIndexDir);
+
       Instant end = Instant.now();
       Duration timeElapsed = Duration.between(start, end);
       LOG.info("init CLAMP: Time taken: " + timeElapsed.toMillis() + " milliseconds");
@@ -127,7 +139,6 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
       try {
         String note_id = Objects.requireNonNull(input.getValue("note_id")).toString();
         String text = input.getValue("note_text");
-        System.out.println("processElement: "+text);
         Document doc = new Document(note_id, text);
         for (DocProcessor proc : procList) {
           try {
@@ -137,6 +148,7 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
             e.printStackTrace();
           }
         }
+
         Date date = new Date();
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -151,6 +163,8 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
           String snippet = getSnippet(doc, cne);
           String offset = getOffset(cne);
           int sec_id = getSectionId(doc, cne);
+          int concept_id = getNoteNlpConceptId(cne);
+
           Row out = Row.withSchema(output_schema)
               .addValue(0L)
               .addValue(input.getValue("note_id"))
@@ -178,9 +192,9 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
 
     private int getSectionId(Document doc, ClampNameEntity cne) {
       int sec_id = 0;
-      for (ClampSection sec: doc.getSections()) {
+      for (ClampSection sec : doc.getSections()) {
         if ((cne.getBegin() >= sec.getBegin()) && (cne.getEnd() < cne.getEnd())) {
-              break;
+          break;
         }
         sec_id = sec_id + 1;
       }
@@ -210,7 +224,11 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
     }
 
     private int getNoteNlpConceptId(ClampNameEntity cne) {
-      return 0;
+      try {
+        return (int) ((encoder.encode(cne.textStr(), cne.getSemanticTag())).getConcept_id());
+      } catch (Exception e) {
+        return 0;
+      }
     }
 
     private String getTermExists(ClampNameEntity cne) {
@@ -228,6 +246,7 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
       }
       return String.valueOf(term_exists);
     }
+
     private Map<String, String> getAttrMap(Document doc, ClampNameEntity cne) {
       Map<String, String> attrMap = new HashMap<String, String>();
       for (ClampRelation rel : doc.getRelations()) {
