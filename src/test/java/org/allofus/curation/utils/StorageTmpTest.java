@@ -44,6 +44,7 @@ public class StorageTmpTest extends TestCase {
     String tmp_dir = stmp.StoreTmpDir(umls_dir);
 
     HashSet<String> expected_dir_set;
+    System.out.println("testFolderPath: " + testFolderPath);
     try (Stream<Path> paths = Files.walk(Paths.get(testFolderPath))) {
       expected_dir_set =
           paths
