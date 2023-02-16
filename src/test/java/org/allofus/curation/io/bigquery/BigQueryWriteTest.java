@@ -55,7 +55,10 @@ public class BigQueryWriteTest extends TestCase {
 
   public void testWriteBigQuery() throws InterruptedException {
     String gcpTempLocation = "gs://" + TEST_BUCKET + "/bq_tmp";
-    String[] args = new String[] {"--project=" + PROJECT_ID, "--tempLocation=" + gcpTempLocation};
+    String[] args =
+        new String[] {
+          "--project=" + PROJECT_ID, "--tempLocation=" + gcpTempLocation, "--streaming"
+        };
     TestPipelineOptions options =
         PipelineOptionsFactory.fromArgs(args).withValidation().as(TestPipelineOptions.class);
     Pipeline p = Pipeline.create(options);
