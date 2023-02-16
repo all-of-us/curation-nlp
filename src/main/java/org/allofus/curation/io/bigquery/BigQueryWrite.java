@@ -12,6 +12,9 @@ import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PDone;
 import org.apache.beam.sdk.values.Row;
+import org.joda.time.Duration;
+
+import static org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO.Write.Method.STORAGE_WRITE_API;
 
 public class BigQueryWrite extends IOWrite {
 
@@ -32,6 +35,8 @@ public class BigQueryWrite extends IOWrite {
                 .to(String.format(output_sink))
                 .withJsonSchema(jsonString)
                 .ignoreInsertIds()
+                .withMethod(STORAGE_WRITE_API)
+//                .withTriggeringFrequency(Duration.standardMinutes(3))
                 .withNumStorageWriteApiStreams(10)
                 .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_IF_NEEDED)
                 .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_APPEND));
