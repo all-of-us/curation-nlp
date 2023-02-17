@@ -94,7 +94,7 @@ public class BigQueryIOTest extends TestCase {
     expected.add(json_row_2.toString());
 
     String gcpTempLocation = "gs://" + TEST_BUCKET + "/bq_tmp";
-    String[] args = new String[] {"--project=" + PROJECT_ID, "--tempLocation=" + gcpTempLocation, "--streaming"};
+    String[] args = new String[] {"--project=" + PROJECT_ID, "--tempLocation=" + gcpTempLocation};
     TestPipelineOptions options =
         PipelineOptionsFactory.fromArgs(args).withValidation().as(TestPipelineOptions.class);
     Pipeline p = Pipeline.create(options);
