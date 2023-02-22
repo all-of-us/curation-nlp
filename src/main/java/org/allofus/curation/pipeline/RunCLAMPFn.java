@@ -205,14 +205,59 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
       return Integer.parseInt(sec.getSectionName());
     }
 
+    private int getSentenceIndex(Document doc, ClampNameEntity cne) {
+        int sentIndex = -1;
+        for (int idx=0; idx<doc.getSentences().size(); idx++) {
+          ClampSentence sent = doc.getSentences().get(idx);
+          if (cne.getBegin() >= sent.getBegin() && cne.getEnd() <= sent.getEnd()) {
+              sentIndex = idx;
+              break;
+          }            
+        }
+        return sentIndex;
+    }
+
+    private int getTokenIndexInSentence(ClampSentence sent, ClampToken token) {
+      int tokenIndex = -1;
+      for (int idx=0; idx<sent.getTokens().size(); idx++) {
+        ClampToken tokenSent = sent.getTokens().get(idx);
+        if (tokenSent.getBegin() == token.getBegin() && tokenSent.getEnd() == token.getEnd()) {
+          tokenIndex = idx;
+          break;
+        }            
+      }
+      return tokenIndex;
+    }
+
     private String getSnippet(Document doc, ClampNameEntity cne) {
       int s = cne.getBegin();
       int e = cne.getEnd();
       StringBuilder snippet = new StringBuilder();
+      int sentIndex = getSentenceIndex(doc, cne);
+      if (sentIndex < 0) {
+        // not find corresponding sentence, will return cne string itself
+        System.out.println("getSnippet: Warning: the reconized cne may not belong to one sentence. Ignorig its surrounding tokens.");
+      } else {
+        ClampSentence sent = doc.getSentences().get(sentIndex);
+        int tokenBeginIndex = getTokenIndexInSentence(sent, cne.getTokens().get(0));
+        int tokenEndIndex = getTokenIndexInSentence(sent, cne.getTokens().get(cne.getTokens().size()-1));
+        if (tokenBeginIndex<2) {
+          tokenBeginIndex = 0;
+        } else {
+          tokenBeginIndex -= 2;
+        }
+        if (tokenEndIndex+2>=sent.getTokens().size()) {
+          tokenEndIndex = sent.getTokens().size()-1;
+        } else {
+          tokenEndIndex += 2;
+        }
+        // update s and e using the -2/+2 tokens of cne
+        s = sent.getTokens().get(tokenBeginIndex).getBegin();
+        e = sent.getTokens().get(tokenEndIndex).getEnd();
+      }
       snippet.append(doc.getFileContent(), s, e);
-
-      snippet = new StringBuilder(snippet.toString().trim());
-      return snippet.toString();
+      
+      return snippet.toString().trim();
     }
 
     private String getOffset(ClampNameEntity cne) {
