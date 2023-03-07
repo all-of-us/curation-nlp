@@ -27,7 +27,6 @@ public class StorageTmpTest extends TestCase {
     umls_dir = "index/umls_index";
     testFolderPath = Constants.ProjectPaths.TEST_INPUT;
     testFilePath = testFolderPath + "/" + test_filename;
-
     stmp = new StorageTmp(resources_dir);
   }
 
@@ -42,14 +41,13 @@ public class StorageTmpTest extends TestCase {
 
   public void testStoreTmpFolder() throws IOException {
     String tmp_dir = stmp.StoreTmpDir(umls_dir);
-
     HashSet<String> expected_dir_set;
     try (Stream<Path> paths = Files.walk(Paths.get(testFolderPath))) {
       expected_dir_set =
           paths
               .filter(Files::isRegularFile)
               .map(Path::toString)
-              .map(s -> s.substring(s.lastIndexOf("/")))
+              .map(s -> s.substring(s.lastIndexOf(File.separator)))
               .collect(Collectors.toCollection(HashSet::new));
     }
     HashSet<String> actual_dir_set;
@@ -58,7 +56,7 @@ public class StorageTmpTest extends TestCase {
           paths
               .filter(Files::isRegularFile)
               .map(Path::toString)
-              .map(s -> s.substring(s.lastIndexOf("/")))
+              .map(s -> s.substring(s.lastIndexOf(File.separator)))
               .collect(Collectors.toCollection(HashSet::new));
     }
     assertEquals(expected_dir_set, actual_dir_set);
