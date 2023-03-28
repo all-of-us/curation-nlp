@@ -37,6 +37,10 @@ public interface CurationNLPOptions extends PipelineOptions {
   String getOutput();
   void setOutput(String value);
 
+  @Validation.Required
+  int getNumThread();
+  void setNumThread(int value);
+
   @Description("Build Identifier")
   String getBuildId();
   void setBuildId(String BuildId);
