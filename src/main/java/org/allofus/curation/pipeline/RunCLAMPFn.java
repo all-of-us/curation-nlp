@@ -48,7 +48,7 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
   String rxNormIndexDir;
   String omopIndexDir;
   String pipeline_file;
-  int numThread;
+  Integer maxClampThreads;
 
   @Override
   public PCollection<Row> expand(PCollection<Row> input) {
@@ -76,9 +76,9 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
     umlsIndexDir = primaryIndexDir + "umls_index";
     rxNormIndexDir = primaryIndexDir + "rxnorm_index";
     omopIndexDir = primaryIndexDir + "omop_index";
-    
+
     // set numThread
-    this.numThread = options.getNumThread();
+    maxClampThreads = options.getMaxClampThreads();
   }
 
   public class RunCLAMPSingleFn extends DoFn<Row, Row> {
@@ -110,7 +110,7 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
       try {
         INIT_MUTEX_LOCK.lock();
         // load pipelines;
-        pipeline = ConfigUtil.importPipelineFromJar(pipelineJar, numThread);
+        pipeline = ConfigUtil.importPipelineFromJar(pipelineJar, maxClampThreads);
 
         for (DocProcessor proc : pipeline) {
           if (proc instanceof UmlsEncoderUIMA) {
@@ -177,7 +177,7 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
               .addValue(getLexicalVariant(cne))
               .addValue((long) concept_id)
               .addValue((long) concept_id)
-              .addValue("CLAMP 1.7.5")
+              .addValue("CLAMP 1.7.6")
               .addValue(nlpDate)
               .addValue(nlpDatetime)
               .addValue(te)

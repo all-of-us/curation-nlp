@@ -38,7 +38,11 @@ public class CurationNLPMain {
     IORead ioRead = IOReadFactory.create(options.getInputType());
     ioRead.init(options.getInput(), options.getInputType());
     IOWrite ioWrite = IOWriteFactory.create(options.getOutputType());
-    ioWrite.init(options.getOutput(), options.getOutputType());
+    ioWrite.init(
+        options.getOutput(),
+        options.getOutputType(),
+        options.getMaxOutputBatchSize(),
+        options.getMaxOutputPartitionSeconds());
 
     p.apply(ioRead).apply(runCLAMPFn).apply(ioWrite);
 

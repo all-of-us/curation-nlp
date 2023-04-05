@@ -11,20 +11,17 @@ import org.joda.time.Duration;
 
 public class JSONLWrite extends IOWrite {
 
-  Integer maxOutputPartitionSeconds = 60;
-  Integer outputBatchSize = 1000;
-
   public PDone expand(PCollection<Row> input) {
     return input
         .apply(ToJson.of())
         .apply("Windowing",
-          Window.<String>into(FixedWindows.of(Duration.standardSeconds(maxOutputPartitionSeconds)))
+          Window.<String>into(FixedWindows.of(Duration.standardSeconds(output_partition_seconds)))
             .triggering(Repeatedly.forever(
-              AfterFirst.of(AfterPane.elementCountAtLeast(outputBatchSize),
+              AfterFirst.of(AfterPane.elementCountAtLeast(output_batch_size),
                 AfterProcessingTime
                   .pastFirstElementInPane()
-                  .plusDelayOf(Duration.standardSeconds(maxOutputPartitionSeconds/4)))))
-            .withAllowedLateness(Duration.standardSeconds(maxOutputPartitionSeconds/12))
+                  .plusDelayOf(Duration.standardSeconds(output_partition_seconds/4)))))
+            .withAllowedLateness(Duration.standardSeconds(output_partition_seconds/12))
             .discardingFiredPanes())
         .apply(TextIO.write().to(output_sink).withWindowedWrites().withNumShards(1).withSuffix("." + output_ext));
   }
