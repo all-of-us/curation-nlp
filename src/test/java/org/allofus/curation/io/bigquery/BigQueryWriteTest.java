@@ -69,7 +69,7 @@ public class BigQueryWriteTest extends TestCase {
     cr.registerCoderForClass(Float.class, DoubleCoder.of());
 
     IOWrite ioWrite = IOWriteFactory.create(output_type);
-    ioWrite.init(output_table, output_type);
+    ioWrite.init(output_table, output_type, 100, 60);
 
     Row row_1 =
         Row.withSchema(note_nlp_schema)

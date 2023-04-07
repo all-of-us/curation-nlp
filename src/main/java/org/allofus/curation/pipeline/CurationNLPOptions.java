@@ -37,6 +37,21 @@ public interface CurationNLPOptions extends PipelineOptions {
   String getOutput();
   void setOutput(String value);
 
+  @Description("Max number of CLAMP threads")
+  @Validation.Required
+  Integer getMaxClampThreads();
+  void setMaxClampThreads(Integer value);
+
+  @Description("Max output partition wait in seconds")
+  @Validation.Required
+  Integer getMaxOutputPartitionSeconds();
+  void setMaxOutputPartitionSeconds(Integer value);
+
+  @Description("Max output partition/batch size")
+  @Validation.Required
+  Integer getMaxOutputBatchSize();
+  void setMaxOutputBatchSize(Integer value);
+
   @Description("Build Identifier")
   String getBuildId();
   void setBuildId(String BuildId);
