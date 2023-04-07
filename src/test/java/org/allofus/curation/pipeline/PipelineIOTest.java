@@ -33,7 +33,6 @@ public class PipelineIOTest extends TestCase {
           "--maxClampThreads=4",
           "--maxOutputPartitionSeconds=60",
           "--maxOutputBatchSize=100",
-          "--pipeline=" + pipeline_jar,
           "--inputType=jsonl",
           "--outputType=" + ext,
         };
