@@ -45,7 +45,7 @@ public interface CurationNLPOptions extends PipelineOptions {
   @Description("Max output partition wait in seconds")
   @Validation.Required
   Integer getMaxOutputPartitionSeconds();
-  void getMaxOutputPartitionSeconds(Integer value);
+  void setMaxOutputPartitionSeconds(Integer value);
 
   @Description("Max output partition/batch size")
   @Validation.Required
