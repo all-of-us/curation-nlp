@@ -109,7 +109,7 @@ public class BigQueryIOTest extends TestCase {
     IORead ioRead = IOReadFactory.create(input_output_type);
     ioRead.init(input_table, input_output_type);
     IOWrite ioWrite = IOWriteFactory.create(input_output_type);
-    ioWrite.init(output_table, input_output_type);
+    ioWrite.init(output_table, input_output_type, 100, 60);
 
     p.apply(ioRead).apply(new IOFn()).apply(ioWrite);
 

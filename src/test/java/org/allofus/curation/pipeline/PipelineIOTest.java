@@ -30,6 +30,10 @@ public class PipelineIOTest extends TestCase {
           "--output=" + ProjectPaths.TEST_OUTPUT + "/",
           "--resourcesDir=" + ProjectPaths.CLAMP_RESOURCES,
           "--pipeline=" + pipeline_jar,
+          "--maxClampThreads=4",
+          "--maxOutputPartitionSeconds=60",
+          "--maxOutputBatchSize=100",
+          "--pipeline=" + pipeline_jar,
           "--inputType=jsonl",
           "--outputType=" + ext,
         };
@@ -46,7 +50,9 @@ public class PipelineIOTest extends TestCase {
     IORead ioRead = IOReadFactory.create(options.getInputType());
     ioRead.init(options.getInput(), options.getInputType());
     IOWrite ioWrite = IOWriteFactory.create(options.getOutputType());
-    ioWrite.init(options.getOutput(), options.getOutputType());
+    ioWrite.init(options.getOutput(), options.getOutputType(),
+      options.getMaxOutputBatchSize(),
+      options.getMaxOutputPartitionSeconds());
 
     p.apply(ioRead).apply(new IOFn()).apply(ioWrite);
 
