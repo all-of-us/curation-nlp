@@ -39,16 +39,23 @@ To deploy to Google Dataflow, use the following command
   --stagingLocation={bucket}/staging \
   --tempLocation={bucket}/tmp \
   --resourcesDir={bucket}/resources \
-  --input={bucket}/input --output={bucket}/output \
-  --inputType=jsonl --outputType=jsonl \
-  --project={project} --region={region} \
+  --input={bucket}/input \
+  --output={bucket}/output \
+  --inputType=jsonl \
+  --outputType=jsonl \
+  --project={project} \
+  --region={region} \
   --subnetwork={subnet} \
   --usePublicIps=false \
-  --maxNumWorkers=5 --numberOfWorkerHarnessThreads=2 \
-  --workerMachineType=n1-highmem-4 --diskSizeGb=50 \
+  --maxNumWorkers=5 \
+  --numberOfWorkerHarnessThreads=2 \
+  --workerMachineType=n1-highmem-4 \
+  --diskSizeGb=50 \
   --experiments=use_runner_v2 \
-  --pipeline={pipeline} --maxClampThreads=4 \
-  --maxOutputPartitionSeconds=60 --maxOutputBatchSize=100 \
+  --pipeline={pipeline} \
+  --maxClampThreads=4 \
+  --maxOutputPartitionSeconds=60 \
+  --maxOutputBatchSize=100 \
   [--streaming --enableStreamingEngine]</code>
 
 ## Authentication Details
