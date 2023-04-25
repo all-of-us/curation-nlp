@@ -276,6 +276,12 @@
             <version>${beam.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-common</artifactId>
+            <version>3.3.5</version>
+        </dependency>
+
         <!-- The DirectRunner is needed for unit tests. -->
         <dependency>
             <groupId>org.apache.beam</groupId>
