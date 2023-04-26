@@ -1,10 +1,7 @@
 package org.allofus.curation.io.parquet;
 
 import org.allofus.curation.io.factory.IORead;
-import org.allofus.curation.io.jsonl.JSONLRead;
-import org.allofus.curation.utils.JsonToAvroSchema;
-import org.allofus.curation.utils.ReadSchemaFromJson;
-import org.apache.avro.Schema;
+import org.allofus.curation.utils.ReadSchemaFromAvro;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.beam.sdk.io.FileIO;
 import org.apache.beam.sdk.io.parquet.ParquetIO;
@@ -22,8 +19,7 @@ import org.slf4j.LoggerFactory;
 public class ParquetRead extends IORead {
   static final Logger LOG = LoggerFactory.getLogger(ParquetRead.class);
 
-  static String jsonString = "{ \"fields\": " + ReadSchemaFromJson.getJsonString("note.json") + "}";
-  static Schema avroSchema = JsonToAvroSchema.getAvroSchema(jsonString);
+  static org.apache.avro.Schema avroSchema = ReadSchemaFromAvro.ReadSchema("note.avsc");
 
   @Override
   public PCollection<Row> expand(PBegin input) {
