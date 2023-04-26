@@ -1,5 +1,7 @@
 package org.allofus.curation.utils;
 
+import java.io.File;
+
 public final class Constants {
   public static class Env {
     public static final String PROJECT_ID = System.getenv("PROJECT_ID");
@@ -11,13 +13,36 @@ public final class Constants {
 
   public static class ProjectPaths {
     public static final String PROJECT_HOME = System.getProperty("user.dir");
-    public static final String CLAMP_RESOURCES = PROJECT_HOME + "/resources";
-    public static final String RESOURCES = PROJECT_HOME + "/src/main/resources";
-    public static final String SCHEMA_CLINICAL = RESOURCES + "/schemas/cdm/clinical";
-    public static final String TEST_RESOURCES = PROJECT_HOME + "/src/test/resources";
-    public static final String TEST_DATA = TEST_RESOURCES + "/data";
-    public static final String TEST_INPUT = TEST_DATA + "/input";
-    public static final String TEST_OUTPUT = TEST_DATA + "/output";
-    public static final String TEST_EXPECTED = TEST_DATA + "/expected";
+    public static final String CLAMP_RESOURCES = PROJECT_HOME + File.separator + "resources";
+    public static final String RESOURCES =
+        PROJECT_HOME
+            + File.separator
+            + "src"
+            + File.separator
+            + "main"
+            + File.separator
+            + "resources";
+    public static final String SCHEMA_CLINICAL =
+        RESOURCES
+            + File.separator
+            + "schemas"
+            + File.separator
+            + "cdm"
+            + File.separator
+            + "clinical";
+    public static final String SCHEMA_CLINICAL_JSON = SCHEMA_CLINICAL + File.separator + "json";
+    public static final String SCHEMA_CLINICAL_AVRO = SCHEMA_CLINICAL + File.separator + "avro";
+    public static final String TEST_RESOURCES =
+        PROJECT_HOME
+            + File.separator
+            + "src"
+            + File.separator
+            + "test"
+            + File.separator
+            + "resources";
+    public static final String TEST_DATA = TEST_RESOURCES + File.separator + "data";
+    public static final String TEST_INPUT = TEST_DATA + File.separator + "input";
+    public static final String TEST_OUTPUT = TEST_DATA + File.separator + "output";
+    public static final String TEST_EXPECTED = TEST_DATA + File.separator + "expected";
   }
 }
