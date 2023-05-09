@@ -76,7 +76,7 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
     umlsIndexDir = primaryIndexDir + "umls_index";
     rxNormIndexDir = primaryIndexDir + "rxnorm_index";
     omopIndexDir = primaryIndexDir + "omop_index";
-    
+
     // set numThread
     this.numThread = options.getNumThread();
   }
@@ -114,14 +114,17 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
 
         for (DocProcessor proc : pipeline) {
           if (proc instanceof UmlsEncoderUIMA) {
-            ((UmlsEncoderUIMA) proc).setIndexDir(umlsIndex);
-            procList.add(proc);
+            // ((UmlsEncoderUIMA) proc).setIndexDir(umlsIndex);
+            // procList.add(proc);
+            continue;
           } else if (proc instanceof RxNormEncoderUIMA) {
-            ((RxNormEncoderUIMA) proc).setIndex(rxNormIndexDir);
-            procList.add(proc);
+            // ((RxNormEncoderUIMA) proc).setIndex(rxNormIndexDir);
+            // procList.add(proc);
+            continue;
           } else if (proc instanceof MaxMatchingUmlsEncoderCovid) {
-            ((MaxMatchingUmlsEncoderCovid) proc).setIndexDir(umlsIndexDir);
-            procList.add(proc);
+            // ((MaxMatchingUmlsEncoderCovid) proc).setIndexDir(umlsIndexDir);
+            // procList.add(proc);
+            continue;
           } else {
             procList.add(proc);
           }
@@ -177,7 +180,7 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
               .addValue(getLexicalVariant(cne))
               .addValue((long) concept_id)
               .addValue((long) concept_id)
-              .addValue("CLAMP 1.7.5")
+              .addValue("CLAMP 1.7.6")
               .addValue(nlpDate)
               .addValue(nlpDatetime)
               .addValue(te)
@@ -209,25 +212,25 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
     }
 
     private int getSentenceIndex(Document doc, ClampNameEntity cne) {
-        int sentIndex = -1;
-        for (int idx=0; idx<doc.getSentences().size(); idx++) {
-          ClampSentence sent = doc.getSentences().get(idx);
-          if (cne.getBegin() >= sent.getBegin() && cne.getEnd() <= sent.getEnd()) {
-              sentIndex = idx;
-              break;
-          }            
+      int sentIndex = -1;
+      for (int idx = 0; idx < doc.getSentences().size(); idx++) {
+        ClampSentence sent = doc.getSentences().get(idx);
+        if (cne.getBegin() >= sent.getBegin() && cne.getEnd() <= sent.getEnd()) {
+          sentIndex = idx;
+          break;
         }
-        return sentIndex;
+      }
+      return sentIndex;
     }
 
     private int getTokenIndexInSentence(ClampSentence sent, ClampToken token) {
       int tokenIndex = -1;
-      for (int idx=0; idx<sent.getTokens().size(); idx++) {
+      for (int idx = 0; idx < sent.getTokens().size(); idx++) {
         ClampToken tokenSent = sent.getTokens().get(idx);
         if (tokenSent.getBegin() == token.getBegin() && tokenSent.getEnd() == token.getEnd()) {
           tokenIndex = idx;
           break;
-        }            
+        }
       }
       return tokenIndex;
     }
@@ -239,18 +242,19 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
       int sentIndex = getSentenceIndex(doc, cne);
       if (sentIndex < 0) {
         // not find corresponding sentence, will return cne string itself
-        System.out.println("getSnippet: Warning: the reconized cne may not belong to one sentence. Ignorig its surrounding tokens.");
+        System.out.println(
+            "getSnippet: Warning: the reconized cne may not belong to one sentence. Ignorig its surrounding tokens.");
       } else {
         ClampSentence sent = doc.getSentences().get(sentIndex);
         int tokenBeginIndex = getTokenIndexInSentence(sent, cne.getTokens().get(0));
-        int tokenEndIndex = getTokenIndexInSentence(sent, cne.getTokens().get(cne.getTokens().size()-1));
-        if (tokenBeginIndex<2) {
+        int tokenEndIndex = getTokenIndexInSentence(sent, cne.getTokens().get(cne.getTokens().size() - 1));
+        if (tokenBeginIndex < 2) {
           tokenBeginIndex = 0;
         } else {
           tokenBeginIndex -= 2;
         }
-        if (tokenEndIndex+2>=sent.getTokens().size()) {
-          tokenEndIndex = sent.getTokens().size()-1;
+        if (tokenEndIndex + 2 >= sent.getTokens().size()) {
+          tokenEndIndex = sent.getTokens().size() - 1;
         } else {
           tokenEndIndex += 2;
         }
@@ -259,7 +263,7 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
         e = sent.getTokens().get(tokenEndIndex).getEnd();
       }
       snippet.append(doc.getFileContent(), s, e);
-      
+
       return snippet.toString().trim();
     }
 
@@ -275,6 +279,7 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
       try {
         return (int) ((encoder.encode(cne.textStr(), cne.getSemanticTag())).getConcept_id());
       } catch (Exception e) {
+        System.out.println("cne text: " + cne.textStr() + " semantic: " + cne.getSemanticTag());
         return 0;
       }
     }
