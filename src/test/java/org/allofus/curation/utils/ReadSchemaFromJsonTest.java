@@ -13,7 +13,7 @@ import java.util.List;
 
 import static com.shazam.shazamcrest.MatcherAssert.assertThat;
 import static com.shazam.shazamcrest.matcher.Matchers.sameBeanAs;
-import static org.allofus.curation.utils.Constants.ProjectPaths.SCHEMA_CLINICAL;
+import static org.allofus.curation.utils.Constants.ProjectPaths.SCHEMA_CLINICAL_JSON;
 
 public class ReadSchemaFromJsonTest extends TestCase {
 
@@ -74,7 +74,7 @@ public class ReadSchemaFromJsonTest extends TestCase {
   public void testNoteString() throws IOException {
     String expected_string =
         new String(
-            Files.readAllBytes(Paths.get(SCHEMA_CLINICAL + "/" + "note.json")),
+            Files.readAllBytes(Paths.get(SCHEMA_CLINICAL_JSON + "/" + "note.json")),
             StandardCharsets.UTF_8);
     String actual_string = ReadSchemaFromJson.getJsonString("note.json");
     assertThat(
@@ -84,7 +84,7 @@ public class ReadSchemaFromJsonTest extends TestCase {
   public void testVerifyNoteNLPSchema() throws IOException {
     String expected_string =
         new String(
-            Files.readAllBytes(Paths.get(SCHEMA_CLINICAL + "/" + "note_nlp.json")),
+            Files.readAllBytes(Paths.get(SCHEMA_CLINICAL_JSON + "/" + "note_nlp.json")),
             StandardCharsets.UTF_8);
     String actual_string = ReadSchemaFromJson.getJsonString("note_nlp.json");
     assertThat(
