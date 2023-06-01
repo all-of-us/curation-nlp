@@ -34,7 +34,7 @@ public class BigQueryWrite extends IOWrite {
                 .to(String.format(output_sink))
                 .withJsonSchema(jsonString)
                 .ignoreInsertIds()
-                .withMethod(STORAGE_WRITE_API)
+//                .withMethod(STORAGE_WRITE_API)
 //                .withTriggeringFrequency(Duration.standardMinutes(3))
                 .withNumStorageWriteApiStreams(10)
                 .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_IF_NEEDED)
