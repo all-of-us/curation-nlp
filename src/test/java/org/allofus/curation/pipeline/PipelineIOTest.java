@@ -26,8 +26,8 @@ public class PipelineIOTest extends TestCase {
 
     String[] args =
         new String[] {
-          "--input=" + ProjectPaths.TEST_INPUT + "/",
-          "--output=" + ProjectPaths.TEST_OUTPUT + "/",
+          "--input=" + ProjectPaths.TEST_INPUT + File.separator,
+          "--output=" + ProjectPaths.TEST_OUTPUT + File.separator,
           "--resourcesDir=" + ProjectPaths.CLAMP_RESOURCES,
           "--pipeline=" + pipeline_jar,
           "--maxClampThreads=4",
