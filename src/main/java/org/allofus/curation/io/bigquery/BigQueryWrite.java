@@ -12,7 +12,6 @@ import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PDone;
 import org.apache.beam.sdk.values.Row;
-import org.joda.time.Duration;
 
 import static org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO.Write.Method.STORAGE_WRITE_API;
 

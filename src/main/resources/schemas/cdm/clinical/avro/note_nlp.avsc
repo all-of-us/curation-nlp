@@ -1,0 +1,61 @@
+{
+  "type" : "record",
+  "name" : "schema",
+  "fields" : [ {
+    "name" : "note_nlp_id",
+    "type" : [ "null", "long" ],
+    "default" : null
+  }, {
+    "name" : "note_id",
+    "type" : [ "null", "long" ],
+    "default" : null
+  }, {
+    "name" : "section_concept_id",
+    "type" : [ "null", "long" ],
+    "default" : null
+  }, {
+    "name" : "snippet",
+    "type" : [ "null", "string" ],
+    "default" : null
+  }, {
+    "name" : "offset",
+    "type" : [ "null", "string" ],
+    "default" : null
+  }, {
+    "name" : "lexical_variant",
+    "type" : [ "null", "string" ],
+    "default" : null
+  }, {
+    "name" : "note_nlp_concept_id",
+    "type" : [ "null", "long" ],
+    "default" : null
+  }, {
+    "name" : "note_nlp_source_concept_id",
+    "type" : [ "null", "long" ],
+    "default" : null
+  }, {
+    "name" : "nlp_system",
+    "type" : [ "null", "string" ],
+    "default" : null
+  }, {
+    "name" : "nlp_date",
+    "type" : [ "null", "string" ],
+    "default" : null
+  }, {
+    "name" : "nlp_datetime",
+    "type" : [ "null", "string" ],
+    "default" : null
+  }, {
+    "name" : "term_exists",
+    "type" : [ "null", "string" ],
+    "default" : null
+  }, {
+    "name" : "term_temporal",
+    "type" : [ "null", "string" ],
+    "default" : null
+  }, {
+    "name" : "term_modifiers",
+    "type" : [ "null", "string" ],
+    "default" : null
+  } ]
+}
