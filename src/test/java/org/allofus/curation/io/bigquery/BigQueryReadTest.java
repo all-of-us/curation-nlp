@@ -15,13 +15,17 @@ import org.apache.beam.sdk.testing.PAssert;
 import org.apache.beam.sdk.testing.TestPipelineOptions;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.Row;
+import org.junit.Ignore;
+import org.junit.jupiter.api.Test;
 
 import static org.allofus.curation.utils.Constants.Env.*;
 
+@Ignore
 public class BigQueryReadTest extends TestCase {
 
   String input_table = PROJECT_ID + "." + TEST_DATASET + "." + TEST_INPUT_TABLE;
 
+  @Test
   public void testReadBQ() {
     String gcpTempLocation = "gs://" + TEST_BUCKET + "/bq_tmp";
     String[] args = new String[] {"--project=" + PROJECT_ID, "--tempLocation=" + gcpTempLocation};
