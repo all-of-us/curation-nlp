@@ -35,6 +35,7 @@
         <bigquerystorage.version>2.23.1</bigquerystorage.version>
         <google-api.version>1.35.2</google-api.version>
         <guava.version>31.1-jre</guava.version>
+        <spring.version>5.3.29</spring.version>
         <google-storage.version>2.9.3</google-storage.version>
     </properties>
 
@@ -288,6 +289,12 @@
             <artifactId>hadoop-client</artifactId>
             <version>${hadoop.version}</version>
             <type>pom</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>${spring.version}</version>
         </dependency>
 
         <!-- The DirectRunner is needed for unit tests. -->
