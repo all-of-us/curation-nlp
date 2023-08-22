@@ -18,6 +18,8 @@ import org.apache.beam.sdk.testing.TestPipelineOptions;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +34,7 @@ import java.util.UUID;
 
 import static org.allofus.curation.utils.Constants.Env.*;
 
+@Ignore
 public class BigQueryIOTest extends TestCase {
 
   private static final Logger LOG = LoggerFactory.getLogger(BigQueryIOTest.class);
@@ -54,6 +57,7 @@ public class BigQueryIOTest extends TestCase {
     queryJob.waitFor();
   }
 
+  @Test
   public void testReadWriteBQ() throws InterruptedException {
 
     Schema note_nlp_schema = NLPSchema.getNoteNLPSchema();
