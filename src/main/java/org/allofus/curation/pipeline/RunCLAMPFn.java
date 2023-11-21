@@ -28,6 +28,7 @@ import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
@@ -143,54 +144,98 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
         String note_id = Objects.requireNonNull(input.getValue("note_id")).toString();
         String text = input.getValue("note_text");
         Document doc = new Document(note_id, text);
-        for (DocProcessor proc : procList) {
+        ExecutorService clampExecutor = Executors.newSingleThreadExecutor();
+        FutureTask<Throwable> future = new FutureTask<>(() -> {
           try {
-            proc.process(doc);
+            for (DocProcessor proc : procList) {
+              proc.process(doc);
+            }
+            Date date = new Date();
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            String nlpDate = dateFormat.format(date);
+            SimpleDateFormat datetimeFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+            String nlpDatetime = datetimeFormat.format(date);
+
+            for (ClampNameEntity cne : doc.getNameEntity()) {
+              String tmp = getTermTemporal(doc, cne);
+              String te = getTermExists(cne);
+              String tm = getTermModifiers(doc, cne);
+              String snippet = getSnippet(doc, cne);
+              String offset = getOffset(cne);
+              int sec_id = getSectionId(doc, cne);
+              int concept_id = getNoteNlpConceptId(cne);
+
+              Row out = Row.withSchema(output_schema)
+                .addValue(0L)
+                .addValue(input.getValue("note_id"))
+                .addValue((long) sec_id)
+                .addValue(snippet)
+                .addValue(offset)
+                .addValue(getLexicalVariant(cne))
+                .addValue((long) concept_id)
+                .addValue((long) concept_id)
+                .addValue("CLAMP 1.7.6")
+                .addValue(nlpDate)
+                .addValue(nlpDatetime)
+                .addValue(te)
+                .addValue(tmp)
+                .addValue(tm)
+                .build();
+              receiver.output(out);
+            }
+            return null;
           } catch (AnalysisEngineProcessException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            return e;
           }
+        });
+        clampExecutor.submit(future);
+        try {
+          Throwable t = future.get(60, TimeUnit.SECONDS);
+          if (t != null) {
+            throw new RuntimeException(t);
+          }
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+          System.out.println("Skipping document " + note_id + " since run taking too long.");
+          future.cancel(true);
+          clampExecutor.shutdownNow();
+          receiver.output(emptyOutputRow(note_id));
+        } catch (Throwable t) {
+          System.out.println("Skipping document " + note_id + " due to error.");
+          t.printStackTrace();
+          future.cancel(true);
+          clampExecutor.shutdownNow();
+          receiver.output(emptyOutputRow(note_id));
         }
-
-        Date date = new Date();
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        String nlpDate = dateFormat.format(date);
-        SimpleDateFormat datetimeFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-        String nlpDatetime = datetimeFormat.format(date);
-
-        for (ClampNameEntity cne : doc.getNameEntity()) {
-          String tmp = getTermTemporal(doc, cne);
-          String te = getTermExists(cne);
-          String tm = getTermModifiers(doc, cne);
-          String snippet = getSnippet(doc, cne);
-          String offset = getOffset(cne);
-          int sec_id = getSectionId(doc, cne);
-          int concept_id = getNoteNlpConceptId(cne);
-
-          Row out = Row.withSchema(output_schema)
-              .addValue(0L)
-              .addValue(input.getValue("note_id"))
-              .addValue((long) sec_id)
-              .addValue(snippet)
-              .addValue(offset)
-              .addValue(getLexicalVariant(cne))
-              .addValue((long) concept_id)
-              .addValue((long) concept_id)
-              .addValue("CLAMP 1.7.6")
-              .addValue(nlpDate)
-              .addValue(nlpDatetime)
-              .addValue(te)
-              .addValue(tmp)
-              .addValue(tm)
-              .build();
-          receiver.output(out);
-        }
-        LOG.info("Processed document " + note_id);
       } catch (Exception e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
+        receiver.output(emptyOutputRow("0"));
       }
+    }
+
+    private Row emptyOutputRow(String note_id){
+      Date date = new Date();
+      SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+      String nlpDate = dateFormat.format(date);
+      SimpleDateFormat datetimeFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+      String nlpDatetime = datetimeFormat.format(date);
+      Row out = Row.withSchema(output_schema)
+        .addValue(0L)
+        .addValue(Long.valueOf(note_id))
+        .addValue(0L)
+        .addValue("")
+        .addValue("")
+        .addValue("")
+        .addValue(0L)
+        .addValue(0L)
+        .addValue("CLAMP 1.7.6")
+        .addValue(nlpDate)
+        .addValue(nlpDatetime)
+        .addValue("")
+        .addValue("")
+        .addValue("")
+        .build();
+      return out;
     }
 
     private int getSectionId(Document doc, ClampNameEntity cne) {
@@ -202,10 +247,6 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
         sec_id = sec_id + 1;
       }
       return sec_id;
-    }
-
-    private int getSectionConceptId(ClampSection sec) {
-      return Integer.parseInt(sec.getSectionName());
     }
 
     private String getSnippet(Document doc, ClampNameEntity cne) {
