@@ -111,7 +111,7 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
       try {
         INIT_MUTEX_LOCK.lock();
         // load pipelines;
-        pipeline = ConfigUtil.importPipelineFromJar(pipelineJar, maxClampThreads);
+        pipeline = ConfigUtil.importPipelineFromJar(pipelineJar);
 
         for (DocProcessor proc : pipeline) {
           if (proc instanceof UmlsEncoderUIMA) {
@@ -191,7 +191,7 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
         });
         clampExecutor.submit(future);
         try {
-          Throwable t = future.get(60, TimeUnit.SECONDS);
+          Throwable t = future.get(120, TimeUnit.SECONDS);
           if (t != null) {
             throw new RuntimeException(t);
           }
