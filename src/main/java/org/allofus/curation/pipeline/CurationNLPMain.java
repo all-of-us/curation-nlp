@@ -32,7 +32,7 @@ public class CurationNLPMain {
     cr.registerCoderForClass(Long.class, VarLongCoder.of());
     cr.registerCoderForClass(Float.class, DoubleCoder.of());
 
-    RunCLAMPFn runCLAMPFn = new RunCLAMPFn();
+    RunCLAMPBaseFn runCLAMPFn = RunCLAMPFnFactory.create(options);
     runCLAMPFn.init_clamp(options);
 
     IORead ioRead = IOReadFactory.create(options.getInputType());
