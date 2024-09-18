@@ -74,7 +74,7 @@ def nlp_pipeline():
         jar=jar_path,
         job_class='org.allofus.curation.pipeline.CurationNLPMain',
         dataflow_config={
-            'job_name': 'composer_run_clamp',
+            'job_name': '{{task.task_id}}',
             'wait_until_finished': True
         },
         pipeline_options={
@@ -84,8 +84,8 @@ def nlp_pipeline():
             'project': PROJECT_ID,
             'usePublicIps': False,
             'region': 'us-central1',
-            'numWorkers': 100,  # Use 10
-            'maxNumWorkers': 100,  # Use 10
+            'numWorkers': 10,  # Use 10
+            'maxNumWorkers': 10,  # Use 10
             'numberOfWorkerHarnessThreads': 2,
             'workerMachineType': 'custom-8-16384',
             'diskSizeGb': 50,
@@ -100,8 +100,8 @@ def nlp_pipeline():
             'resourcesDir': f"gs://{DATAFLOW_BUCKET_NAME}/resources",
             'inputType': 'jsonl',
             'outputType': 'jsonl',
-            'streaming': True,
-            'enableStreamingEngine': True
+            # 'streaming': True,
+            # 'enableStreamingEngine': True
         })
 
     @task()
