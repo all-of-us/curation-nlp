@@ -2,10 +2,10 @@ package org.allofus.curation.pipeline;
 
 import edu.uth.clamp.config.ConfigurationException;
 import edu.uth.clamp.io.DocumentIOException;
-import org.allofus.curation.io.factory.IORead;
-import org.allofus.curation.io.factory.IOReadFactory;
-import org.allofus.curation.io.factory.IOWrite;
-import org.allofus.curation.io.factory.IOWriteFactory;
+import edu.columbia.dbmi.io.factory.IORead;
+import edu.columbia.dbmi.io.factory.IOReadFactory;
+import edu.columbia.dbmi.io.factory.IOWrite;
+import edu.columbia.dbmi.io.factory.IOWriteFactory;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.CoderRegistry;
 import org.apache.beam.sdk.coders.DoubleCoder;

@@ -18,9 +18,9 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.allofus.curation.deid.DeidentificationAouConf;
 import org.allofus.curation.deid.DeidentificationAouProc;
-import org.allofus.curation.utils.NLPSchema;
-import org.allofus.curation.utils.SanitizeInput;
-import org.allofus.curation.utils.StorageTmp;
+import edu.columbia.dbmi.utils.NLPSchema;
+import edu.columbia.dbmi.utils.SanitizeInput;
+import edu.columbia.dbmi.utils.StorageTmp;
 import org.apache.beam.sdk.schemas.Schema;
 import org.apache.beam.sdk.schemas.SchemaCoder;
 import org.apache.beam.sdk.transforms.DoFn;

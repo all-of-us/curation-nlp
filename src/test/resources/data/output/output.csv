@@ -1,4 +1,0 @@
-note_nlp_id,note_id,section_concept_id,snippet,offset,lexical_variant,note_nlp_concept_id,note_nlp_source_concept_id,nlp_system,nlp_date,nlp_datetime,term_exists,term_temporal,term_modifiers
-0,3004,0,test_snippet,0-100,test_variant,100,100,CLAMP 1.7.2,2022-11-10,2022-11-10 10:10:10,False,1 year,TermModifier
-0,1001,0,test_snippet,0-100,test_variant,100,100,CLAMP 1.7.2,2022-11-10,2022-11-10 10:10:10,False,1 year,TermModifier
-0,3002,0,test_snippet,0-100,test_variant,100,100,CLAMP 1.7.2,2022-11-10,2022-11-10 10:10:10,False,1 year,TermModifier
