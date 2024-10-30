@@ -1,0 +1,10 @@
+version: 1
+
+sources:
+  - name: source
+    database: "{{ var('dbt_project_id') }}"
+    schema: "{{ var('dbt_source_dataset_id') }}"
+    description:  A dataset containing source note_nlp tables
+    tables:
+      - name: "{{ var('note_nlp_table_name') }}"
+      - name: concept
