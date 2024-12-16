@@ -11,11 +11,8 @@ import logging
 from pathlib import Path
 import json
 
-# COMPOSER_DIR = "/Users/jpatterson/Documents/workspace/java_projects/curation-nlp/composer"
 DAGS_DIR = "/home/airflow/gcs/dags"
 DBT_PROJECT_DIR = "/home/airflow/gcs/data/cleaning_rules"
-# COMPOSER_DIR = "/Users/jpatterson/Documents/workspace/java_projects/curation-nlp/composer"
-# DBT_PROJECT_DIR = f"{COMPOSER_DIR}/cleaning_rules"
 DBT_MODELS_PATH = f"{DBT_PROJECT_DIR}/models"
 MANIFEST_PATH = f"{DBT_PROJECT_DIR}/target/manifest.json"
 
