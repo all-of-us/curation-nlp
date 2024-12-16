@@ -40,4 +40,4 @@ vars:
   dbt_project_id: "{{ env_var('DBT_PROJECT_ID') }}"
   dbt_dataset_id: "{{ env_var('DBT_DATASET_ID') }}"
   dbt_source_dataset_id: "{{ env_var('DBT_SOURCE_DATASET_ID') }}"
-  note_nlp_table_name: "{{ env_var('NOTE_NLP_TABLE_NAME') }}"
+  # note_nlp_table_name: "{{ env_var('NOTE_NLP_TABLE_NAME') }}"

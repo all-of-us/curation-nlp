@@ -10,6 +10,7 @@ from airflow.providers.apache.beam.hooks.beam import BeamRunnerType
 # from airflow.providers.google.cloud.operators.gcs import
 import pendulum
 import datetime
+from datetime import timedelta
 
 import logging
 
@@ -26,6 +27,7 @@ def nlp_pipeline():
     CLAMP_JAR_NAME = Variable.get('clamp_jar_name')
     NOTES_BQ_DATASET = Variable.get('notes_bq_dataset')
     NOTE_NLP_BQ_DATASET = Variable.get('note_nlp_bq_dataset')
+    SERVICE_ACCOUNT_NAME = Variable.get('service_account_name')
 
     @task()
     def export_notes_to_storage():
@@ -42,7 +44,6 @@ def nlp_pipeline():
             WHERE note_id NOT IN (SELECT note_id
                 FROM `{PROJECT_ID}.{NOTES_BQ_DATASET}.{HPO_ID}_note_nlp`
             )
-            LIMIT 50
 
         """.strip()
 
@@ -73,6 +74,8 @@ def nlp_pipeline():
         task_id='clamp-job',
         jar=jar_path,
         job_class='org.allofus.curation.pipeline.CurationNLPMain',
+        execution_timeout=timedelta(hours=3),
+        retries=0,
         dataflow_config={
             'job_name': '{{task.task_id}}',
             'wait_until_finished': True
@@ -82,10 +85,10 @@ def nlp_pipeline():
             'stagingLocation': f"gs://{DATAFLOW_BUCKET_NAME}/staging",
             'tempLocation': f"gs://{DATAFLOW_BUCKET_NAME}/tmp",
             'project': PROJECT_ID,
-            'usePublicIps': False,
+            'usePublicIps': 'false',
             'region': 'us-central1',
             'numWorkers': 10,  # Use 10
-            'maxNumWorkers': 10,  # Use 10
+            'maxNumWorkers': 200,  # Use 10
             'numberOfWorkerHarnessThreads': 2,
             'workerMachineType': 'custom-8-16384',
             'diskSizeGb': 50,
@@ -100,8 +103,9 @@ def nlp_pipeline():
             'resourcesDir': f"gs://{DATAFLOW_BUCKET_NAME}/resources",
             'inputType': 'jsonl',
             'outputType': 'jsonl',
-            # 'streaming': True,
-            # 'enableStreamingEngine': True
+            'serviceAccount': SERVICE_ACCOUNT_NAME,
+            'streaming': True,
+            'enableStreamingEngine': True
         })
 
     @task()

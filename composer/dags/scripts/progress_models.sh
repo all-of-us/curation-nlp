@@ -1,7 +1,8 @@
 # Define your list of checks (table names)
 checks=("note_nlp" "remove_rows_without_standard_concept" "remove_non_condition_rows" "suppress_free_text_fields" "reset_nlp_dates")
 
-dataset_id=$DBT_DATASET_ID
+# dataset_id=$DBT_DATASET_ID
+dataset_id=$1
 
 
 # Iterate over each check except the last one
