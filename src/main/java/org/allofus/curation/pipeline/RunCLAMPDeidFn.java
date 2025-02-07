@@ -15,11 +15,15 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.allofus.curation.deid.DeidentificationAouConf;
 import org.allofus.curation.deid.DeidentificationAouProc;
 import edu.columbia.dbmi.utils.NLPSchema;
 import edu.columbia.dbmi.utils.SanitizeInput;
+import edu.columbia.dbmi.util.CleanPlainText;
+import edu.columbia.dbmi.util.HtmlToPlainText;
 import edu.columbia.dbmi.utils.StorageTmp;
 import org.apache.beam.sdk.schemas.Schema;
 import org.apache.beam.sdk.schemas.SchemaCoder;
@@ -29,6 +33,7 @@ import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.Row;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +42,7 @@ public class RunCLAMPDeidFn extends RunCLAMPBaseFn {
   private static final ReentrantLock INIT_MUTEX_LOCK = new ReentrantLock();
   private static final Logger LOG = LoggerFactory.getLogger(RunCLAMPDeidFn.class);
   private static final Map<String, String> attrMap = new HashMap<String, String>();
+  private static final Pattern HTML_PATTERN = Pattern.compile("</?\\w+[^>]*>");
   static Schema output_schema = NLPSchema.getNoteSchema();
   private static OMOPEncoder encoder;
   File outPath;
@@ -168,7 +174,34 @@ public class RunCLAMPDeidFn extends RunCLAMPBaseFn {
         Long visit_occurrence_id = input.getValue("visit_occurrence_id");
         Long visit_detail_id = input.getValue("visit_detail_id");
         String note_source_value = input.getValue("note_source_value");
-        Document doc = new Document(note_id, note_text);
+
+        // Handle CCDA-like/RTF/HTML text
+        if (!(note_text == null || note_text.trim().isEmpty())) {
+          Matcher matcher = HTML_PATTERN.matcher(note_text);
+          if (matcher.find()) {
+            org.jsoup.nodes.Document jsoup_doc = Jsoup.parse(note_text);
+            note_text = new HtmlToPlainText().getPlainText(jsoup_doc);
+          } else {
+            note_text = CleanPlainText.clean(note_text);
+          }
+        } else {
+          receiver.output(emptyOutputRow(
+            note_id,
+            person_id,
+            note_date,
+            note_datetime,
+            note_type_concept_id,
+            note_class_concept_id,
+            note_title,
+            encoding_concept_id,
+            language_concept_id,
+            provider_id,
+            visit_occurrence_id,
+            visit_detail_id,
+            note_source_value));
+        }
+
+        edu.uth.clamp.nlp.structure.Document doc = new edu.uth.clamp.nlp.structure.Document(note_id, note_text);
         ExecutorService clampExecutor = Executors.newSingleThreadExecutor();
         FutureTask<Throwable> future = new FutureTask<>(() -> {
           try {
