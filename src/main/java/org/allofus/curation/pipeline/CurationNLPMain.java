@@ -2,10 +2,10 @@ package org.allofus.curation.pipeline;
 
 import edu.uth.clamp.config.ConfigurationException;
 import edu.uth.clamp.io.DocumentIOException;
-import org.allofus.curation.io.factory.IORead;
-import org.allofus.curation.io.factory.IOReadFactory;
-import org.allofus.curation.io.factory.IOWrite;
-import org.allofus.curation.io.factory.IOWriteFactory;
+import edu.columbia.dbmi.io.factory.IORead;
+import edu.columbia.dbmi.io.factory.IOReadFactory;
+import edu.columbia.dbmi.io.factory.IOWrite;
+import edu.columbia.dbmi.io.factory.IOWriteFactory;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.CoderRegistry;
 import org.apache.beam.sdk.coders.DoubleCoder;
@@ -32,7 +32,7 @@ public class CurationNLPMain {
     cr.registerCoderForClass(Long.class, VarLongCoder.of());
     cr.registerCoderForClass(Float.class, DoubleCoder.of());
 
-    RunCLAMPFn runCLAMPFn = new RunCLAMPFn();
+    RunCLAMPBaseFn runCLAMPFn = RunCLAMPFnFactory.create(options);
     runCLAMPFn.init_clamp(options);
 
     IORead ioRead = IOReadFactory.create(options.getInputType());

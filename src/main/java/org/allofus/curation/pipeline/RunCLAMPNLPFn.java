@@ -8,13 +8,12 @@ import edu.uth.clamp.nlp.encoding.RxNormEncoderUIMA;
 import edu.uth.clamp.nlp.structure.*;
 import edu.uth.clamp.nlp.uima.UmlsEncoderUIMA;
 import edu.uth.clamp.nlp.omop.OMOPEncoder;
-import org.allofus.curation.utils.NLPSchema;
-import org.allofus.curation.utils.SanitizeInput;
-import org.allofus.curation.utils.StorageTmp;
+import edu.columbia.dbmi.utils.NLPSchema;
+import edu.columbia.dbmi.utils.SanitizeInput;
+import edu.columbia.dbmi.utils.StorageTmp;
 import org.apache.beam.sdk.schemas.Schema;
 import org.apache.beam.sdk.schemas.SchemaCoder;
 import org.apache.beam.sdk.transforms.DoFn;
-import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.Row;
@@ -31,10 +30,10 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
+public class RunCLAMPNLPFn extends RunCLAMPBaseFn {
 
   private static final ReentrantLock INIT_MUTEX_LOCK = new ReentrantLock();
-  private static final Logger LOG = LoggerFactory.getLogger(RunCLAMPFn.class);
+  private static final Logger LOG = LoggerFactory.getLogger(RunCLAMPNLPFn.class);
   static Schema output_schema = NLPSchema.getNoteNLPSchema();
   private static Map<String, String> attrMap = new HashMap<String, String>();
   private static OMOPEncoder encoder;
@@ -54,7 +53,7 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
   @Override
   public PCollection<Row> expand(PCollection<Row> input) {
     return input
-        .apply(ParDo.of(new RunCLAMPSingleFn()))
+        .apply(ParDo.of(new RunCLAMPNLPSingleFn()))
         .setRowSchema(output_schema)
         .setCoder(SchemaCoder.of(output_schema));
   }
@@ -82,7 +81,7 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
     maxClampThreads = options.getMaxClampThreads();
   }
 
-  public class RunCLAMPSingleFn extends DoFn<Row, Row> {
+  public class RunCLAMPNLPSingleFn extends DoFn<Row, Row> {
     private final List<DocProcessor> procList = new ArrayList<>();
 
     @Setup
@@ -111,7 +110,7 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
       try {
         INIT_MUTEX_LOCK.lock();
         // load pipelines;
-        pipeline = ConfigUtil.importPipelineFromJar(pipelineJar, maxClampThreads);
+        pipeline = ConfigUtil.importPipelineFromJar(pipelineJar);
 
         for (DocProcessor proc : pipeline) {
           if (proc instanceof UmlsEncoderUIMA) {
@@ -191,7 +190,7 @@ public class RunCLAMPFn extends PTransform<PCollection<Row>, PCollection<Row>> {
         });
         clampExecutor.submit(future);
         try {
-          Throwable t = future.get(60, TimeUnit.SECONDS);
+          Throwable t = future.get(120, TimeUnit.SECONDS);
           if (t != null) {
             throw new RuntimeException(t);
           }
